@@ -23,7 +23,7 @@ import ConfigAdmin from './screens/Admin/ConfigAdmin/ConfigAdmin'
 
 function App() {
 
-  axios.defaults.baseURL = "http://localhost:3000"
+  axios.defaults.baseURL = import.meta.env.VITE_SERVER_URL;
   const [isReservaOpen, setIsReservaOpen] = useState(false);
   const openReserva = () => setIsReservaOpen(true);
 
