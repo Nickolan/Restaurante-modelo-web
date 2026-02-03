@@ -6,12 +6,12 @@ import { initMercadoPago, Wallet } from '@mercadopago/sdk-react';
 import axios from 'axios';
 import './CheckoutScreen.css';
 
+// Variable usadas
+const mp_public_key = import.meta.env.VITE_MP_PUBLIC_KEY;
+// const google_api_key = import.meta.env.VITE_GOOGLE_API_KEY;
+
 // INICIALIZA MERCADO PAGO CON TU PUBLIC KEY
-initMercadoPago('APP_USR-e8a45897-002c-46ec-9c32-91d2c301aef9');
-// initMercadoPago('APP_USR-47d1241b-b9da-421a-855b-8efe8c507065', {
-//     locale: 'es-AR' // O 'es-CO', 'es-MX' según tu país
-// });
-const GOOGLE_API_KEY = 'AIzaSyDFt6kWyOO5jBDjHHL7txQ1BNRVVMx2Rpc';
+initMercadoPago(mp_public_key);
 
 const CheckoutScreen = () => {
     const dispatch = useDispatch();
