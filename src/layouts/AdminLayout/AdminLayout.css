@@ -1,0 +1,102 @@
+/* Estilo "Dark Mode" Profesional */
+.admin-container {
+    display: flex;
+    min-height: 100vh;
+    /* Quitamos el color plano y ponemos la imagen */
+    background-image: url('../../assets/Cocina.png'); 
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed; /* Efecto parallax */
+    position: relative;
+    z-index: 0;
+}
+
+.admin-container::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0, 0, 0, 0.55); /* 85% de oscuridad */
+    backdrop-filter: blur(8px);      /* Desenfoque */
+    z-index: -1;
+}
+
+/* Sidebar Oscuro */
+.admin-sidebar {
+    width: 260px;
+    background-color: rgba(20, 20, 20, 0.95);
+    border-right: 1px solid rgba(255, 255, 255, 0.1);
+    color: white;
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    height: 100vh;
+}
+
+.sidebar-header {
+    padding: 30px 20px;
+    text-align: center;
+    border-bottom: 1px solid #333;
+}
+.sidebar-logo { width: 60px; display: block; margin: 0 auto 10px; }
+
+.sidebar-nav {
+    flex: 1;
+    padding: 20px 0;
+    overflow-y: auto;
+}
+
+.nav-item {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 15px 25px;
+    color: #aaa;
+    text-decoration: none;
+    transition: 0.2s;
+    border-left: 4px solid transparent;
+}
+
+.nav-item:hover {
+    background-color: #252525;
+    color: white;
+}
+
+.nav-item.active {
+    background-color: #252525;
+    color: #F1C40F; /* Amarillo corporativo */
+    border-left-color: #F1C40F;
+}
+
+.sidebar-footer {
+    padding: 20px;
+    border-top: 1px solid #333;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: #111;
+}
+
+.user-info { display: flex; align-items: center; gap: 10px; }
+.user-avatar {
+    width: 35px; height: 35px;
+    background: #F1C40F; color: #000;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: bold;
+}
+.user-details { display: flex; flex-direction: column; }
+.user-name { font-size: 0.9rem; font-weight: bold; }
+.user-role { font-size: 0.75rem; color: #777; }
+
+.btn-logout {
+    background: none; border: none; color: #ff6b6b; cursor: pointer; padding: 5px;
+}
+.btn-logout:hover { color: red; }
+
+/* Contenido Principal */
+.admin-content {
+    flex: 1;
+    margin-left: 260px; /* Deja espacio para el sidebar */
+    padding: 40px;
+    overflow-y: auto;
+}

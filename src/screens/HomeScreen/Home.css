@@ -1,0 +1,381 @@
+ .home-container {
+  width: 100%;
+}
+
+.section-title {
+  color: var(--text-main); /* Blanco #FFFFFF  */
+  font-size: 3rem;
+  font-weight: bold;
+  text-align: left;
+  text-decoration: underline;
+  margin-bottom: 40px;
+  padding-left: 20px;
+}
+
+.intro-section {
+  position: relative;
+  height: 90vh; /* Ocupa toda la pantalla */
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+/* Efecto de fondo con Blur y Oscurecimiento */
+.intro-section::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  /* Reemplaza 'tu-imagen.jpg' por la ruta de tu imagen real */
+  background-image: url('../../assets/Fondo.png'); 
+  background-size: cover;
+  background-position: center;
+  filter: blur(8px) brightness(40%); /* 8px de desenfoque y 40% de brillo (oscurecido) */
+  z-index: -1;
+  transform: scale(1.1); /* Evita bordes blancos por el blur */
+}
+
+.restaurant-title {
+  color: var(--text-main); /* Blanco definido en index.css  */
+  font-size: 5rem; /* Ajustable según tu preferencia */
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 4px;
+  text-align: center;
+  z-index: 1;
+}
+
+/* Contenedor de iconos inferior derecho */
+.social-icons-container {
+  position: absolute;
+  bottom: 30px;
+  right: 30px;
+  display: flex;
+  gap: 20px;
+  z-index: 2;
+}
+
+.icon {
+  color: var(--text-main); /* Iconos blancos  */
+  font-size: 2rem;
+  transition: transform 0.3s ease, color 0.3s ease;
+}
+
+.icon:hover {
+  color: var(--secondary-color); /* Cambia al amarillo en hover  */
+  transform: translateY(-5px);
+}
+
+.menu-section {
+  padding: 60px 20px;
+  background-color: var(--bg-color);
+  text-align: center;
+}
+
+.section-subtitle {
+  color: var(--text-main);
+  margin-bottom: 40px;
+  font-size: 2.5rem;
+}
+
+.carousel-container {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* Tarjeta de Combo */
+.combo-card-wrapper {
+  padding: 15px; /* Espaciado entre tarjetas del carrusel */
+}
+
+.combo-card {
+  background-color: var(--surface-color);
+  overflow: hidden;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+  position: relative;
+}
+
+.image-container {
+  position: relative;
+  height: 250px;
+  width: 100%;
+}
+
+.combo-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Espacio Amarillo para el Nombre */
+.combo-name-tag {
+  background-color: var(--secondary-color); /* Amarillo #FFB703 */
+  color: #000;
+  padding: 15px;
+  font-weight: bold;
+  font-size: 1.2rem;
+  text-transform: uppercase;
+}
+
+/* Efecto Hover Overlay */
+.overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.7); /* Capa oscura */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.combo-card:hover .overlay {
+  opacity: 1;
+}
+
+.items-list {
+  color: white;
+  list-style: none;
+  padding: 0;
+  font-size: 1.1rem;
+}
+
+.items-list li {
+  margin: 8px 0;
+}
+
+/* Botón Ver Carta Completa */
+.button-container {
+  margin-top: 50px;
+  align-self: center;
+}
+
+.btn-full-menu {
+  background-color: var(--primary-color); /* Rojo #E63946 */
+  color: white;
+  border: none;
+  padding: 15px 40px;
+  font-size: 1.2rem;
+  font-weight: bold;
+  border-radius: 5px; /* Radio de 5px */
+  cursor: pointer;
+  transition: transform 0.2s, background-color 0.2s;
+}
+
+.btn-full-menu:hover {
+  transform: scale(1.05);
+  filter: brightness(1.1);
+}
+
+/* SECTOR RESERVA */
+.reservation-section {
+  padding: 80px 40px;
+  background-color: var(--bg-color); /* #121212 [cite: 292] */
+  display: flex;
+  flex-direction: column;
+}
+
+.reservation-content {
+  display: flex;
+  align-items: center;
+  gap: 50px;
+  margin-bottom: 40px;
+}
+
+.reservation-image-container {
+  flex: 1;
+}
+
+.reservation-image {
+  width: 100%;
+  height: auto;
+  border-radius: 8px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+}
+
+.reservation-text-container {
+  flex: 1;
+  color: var(--text-main);
+  text-align: left;
+}
+
+.highlight-text {
+  font-weight: bold;
+  font-size: 1.5rem;
+  margin-bottom: 20px;
+  line-height: 1.4;
+}
+
+.description-text {
+  font-size: 1.2rem;
+  line-height: 1.6;
+  color: var(--text-muted); /* #A0A0A0 [cite: 294] */
+}
+
+/* BOTÓN DE RESERVA */
+.btn-reserve {
+  background-color: var(--primary-color); /* Rojo #E63946  */
+  color: white;
+  border: none;
+  padding: 18px 50px;
+  font-size: 1.3rem;
+  font-weight: bold;
+  border-radius: 5px; /* Radio de 5px */
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(230, 57, 70, 0.3);
+}
+
+.btn-reserve:hover {
+  transform: translateY(-3px);
+  filter: brightness(1.2);
+  box-shadow: 0 6px 20px rgba(230, 57, 70, 0.5);
+}
+
+/* SECTOR NOSOTROS */
+.about-section {
+  padding: 80px 40px;
+  background-color: var(--bg-color); /* #121212 */ 
+}
+
+.about-content {
+  display: flex;
+  align-items: center; /* Alinea verticalmente al centro */
+  gap: 60px; /* Espacio entre imagen y texto */
+  margin-top: 20px;
+}
+
+.about-image-container {
+  flex: 1; /* La imagen toma el 50% del ancho */
+}
+
+.about-image {
+  width: 100%;
+  height: auto;
+  border-radius: 10px;
+  object-fit: cover;
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.6);
+}
+
+.about-text-container {
+  flex: 1; /* El texto toma el otro 50% */
+}
+
+.about-description {
+  color: var(--text-main); /* #FFFFFF */
+  font-size: 1.3rem;
+  line-height: 1.8; /* Mayor interlineado para legibilidad en párrafos largos */
+  text-align: justify; /* Alineación justificada para un look más formal */
+}
+
+
+/* SECTOR CONTACTO */
+.contact-section {
+  padding: 80px 40px;
+  background-color: var(--bg-color); /* Fondo #121212 [cite: 292] */
+}
+
+.contact-info-grid {
+  display: flex;
+  justify-content: space-between;
+  gap: 40px;
+  margin-bottom: 60px;
+  padding: 0 20px;
+}
+
+.contact-column {
+  flex: 1;
+  color: var(--text-main); /* Blanco #FFFFFF [cite: 294] */
+  text-align: left;
+}
+
+.contact-subtitle {
+  font-size: 1.8rem;
+  margin-bottom: 25px;
+  color: var(--secondary-color); /* Amarillo #FFB703 para resaltar  */
+  text-transform: uppercase;
+}
+
+.schedule-list {
+  list-style: none;
+  padding: 0;
+  font-size: 1.2rem;
+  line-height: 2;
+}
+
+.contact-detail {
+  font-size: 1.2rem;
+  margin-bottom: 15px;
+}
+
+/* IMAGEN PANORÁMICA INFERIOR */
+.contact-map-image-container {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  overflow: hidden;
+  border-radius: 8px;
+}
+
+.contact-full-image {
+  width: 100%;
+  height: auto;
+  display: block;
+  object-fit: cover;
+  /* Mantenemos la proporción del ejemplo (aprox 532x213) pero escalable */
+  aspect-ratio: 532 / 213; 
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+}
+
+/* Ajuste para dispositivos móviles */
+@media (max-width: 768px) {
+  .restaurant-title {
+    font-size: 3rem;
+  }
+
+  .contact-info-grid {
+    flex-direction: column;
+    gap: 50px;
+    padding: 0;
+  }
+  
+  .contact-column {
+    text-align: center;
+  }
+}
+
+/* Ajustes Responsive */
+@media (max-width: 992px) {
+  .reservation-content {
+    flex-direction: column;
+    text-align: center;
+  }
+  
+  .reservation-text-container {
+    text-align: center;
+  }
+
+  .section-title {
+    font-size: 2.2rem;
+    text-align: center;
+    padding-left: 0;
+  }
+
+  .about-content {
+    flex-direction: column; /* Apila imagen arriba de texto */
+    text-align: center;
+    gap: 30px;
+  }
+
+  .about-description {
+    font-size: 1.1rem;
+    text-align: center; /* Centrado en móviles para mejor lectura */
+  }
+}

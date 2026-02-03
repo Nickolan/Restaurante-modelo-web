@@ -1,0 +1,174 @@
+/* Contenedor principal */
+.admin-page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+}
+
+.page-title { font-size: 1.8rem; color: white; font-weight: 700; text-shadow: 0 2px 4px rgba(0,0,0,0.5); }
+
+.btn-add {
+    background-color: #2ecc71;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 8px;
+    border: none;
+    font-weight: bold;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: 0.2s;
+}
+.btn-add:hover { background-color: #27ae60; }
+
+/* TABLA DE PRODUCTOS */
+.admin-table-container {
+    background: rgba(30, 30, 30, 0.7); /* Oscuro translúcido */
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    overflow: hidden;
+}
+
+.admin-table { width: 100%; border-collapse: collapse; }
+
+.admin-table th {
+    background: rgba(0, 0, 0, 0.5); /* Cabecera más oscura */
+    color: #F1C40F; /* Texto amarillo para resaltar */
+    font-weight: 700;
+    text-align: left;
+    padding: 15px 20px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.admin-table td {
+    padding: 15px 20px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05); /* Líneas separadoras sutiles */
+    color: #eee; /* Texto casi blanco */
+    vertical-align: middle;
+}
+
+.admin-table tr:hover { background-color: rgba(255, 255, 255, 0.05); }
+
+.product-thumb {
+    width: 50px;
+    height: 50px;
+    border-radius: 8px;
+    object-fit: cover;
+    background: #eee;
+}
+
+.badge-cat {
+    background: rgba(52, 152, 219, 0.2);
+    color: #3498db;
+    border: 1px solid rgba(52, 152, 219, 0.4);
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: bold;
+}
+
+.action-btn {
+    border: none;
+    background: none;
+    cursor: pointer;
+    padding: 6px;
+    border-radius: 6px;
+    transition: 0.2s;
+    margin-right: 5px;
+}
+.btn-edit { color: #f1c40f; background: #fff9db; }
+.btn-delete { color: #e74c3c; background: #fadbd8; }
+
+/* MODAL DEL FORMULARIO */
+.modal-overlay {
+    background: rgba(0,0,0,0.8); /* Overlay más oscuro */
+}
+
+.modal-form {
+    background: white;
+    width: 500px;
+    padding: 30px;
+    border-radius: 15px;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+}
+
+.modal-form h2 { margin-top: 0; margin-bottom: 20px; color: #333; }
+
+.form-group { margin-bottom: 15px; }
+.form-group label { display: block; margin-bottom: 5px; font-weight: 600; color: #555; }
+.form-input, .form-select, .form-textarea {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 1rem;
+}
+.form-textarea { resize: vertical; min-height: 80px; }
+
+.modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 25px;
+}
+
+.btn-cancel {
+    background: #eee; color: #555; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer;
+}
+.btn-save {
+    background: #3498db; color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: bold;
+}
+
+/* src/screens/Admin/MenuAdmin/MenuAdmin.css */
+
+.file-upload-wrapper {
+    margin-top: 10px;
+}
+
+.file-dropzone {
+    border: 2px dashed rgba(255, 255, 255, 0.2);
+    border-radius: 12px;
+    padding: 30px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    transition: 0.3s;
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.file-dropzone:hover {
+    background: rgba(241, 196, 15, 0.1);
+    border-color: #F1C40F;
+}
+
+.image-preview-container {
+    position: relative;
+    width: 100%;
+    height: 180px;
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.image-preview {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.btn-remove-img {
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+    background: rgba(231, 76, 60, 0.9);
+    color: white;
+    border: none;
+    padding: 5px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+}

@@ -1,0 +1,99 @@
+.navbar {
+  position: sticky;
+  top: 0;
+  height: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 40px;
+  z-index: 1000;
+  
+  /* Efecto Transparente y Borroso (Glassmorphism) */
+  background-color: rgba(18, 18, 18, 0.75); /* Negro casi transparente */
+  backdrop-filter: blur(10px); /* Desenfoque del fondo */
+  -webkit-backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.navbar-left {
+  display: flex;
+  align-items: center;
+  gap: 30px;
+}
+
+.navbar-logo {
+  height: 60px;
+  width: auto;
+}
+
+.menu-toggle-btn {
+  background: none;
+  border: none;
+  color: var(--text-main); /* Blanco #FFFFFF [cite: 654] */
+  font-size: 2rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+}
+
+.navbar-center {
+  display: flex;
+  gap: 20px;
+}
+
+/* Botones de la Navbar */
+.nav-btn {
+  background-color: rgba(255, 255, 255, 0.05);
+  color: var(--primary-color); /* Rojo #E63946  */
+  border: 2px solid var(--primary-color);
+  padding: 10px 25px;
+  border-radius: 25px; /* Bordes redondeados como la captura */
+  font-weight: bold;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.nav-btn:hover {
+  background-color: var(--primary-color);
+  color: white;
+}
+
+.navbar-right {
+  display: flex;
+  align-items: center;
+   gap: 20px;
+}
+
+.order-note-icon {
+  font-size: 2rem;
+  color: var(--text-main);
+  position: relative;
+  cursor: pointer;
+}
+
+.order-badge {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  background-color: var(--secondary-color); /* Amarillo #FFB703 [cite: 654] */
+  color: black;
+  font-size: 0.7rem;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+}
+
+/* Ajustes para móviles */
+@media (max-width: 768px) {
+  .navbar-center {
+    display: none; /* Ocultamos botones en móvil para el menú hamburguesa */
+  }
+  .navbar {
+    padding: 0 20px;
+  }
+}

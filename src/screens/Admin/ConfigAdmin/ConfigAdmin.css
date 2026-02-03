@@ -1,0 +1,162 @@
+/* Contenedor Principal */
+.config-container {
+    color: white;
+    max-width: 1000px;
+}
+
+.config-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+    gap: 30px;
+    margin-top: 30px;
+    margin-bottom: 40px;
+}
+
+/* Tarjetas Estilo Glass */
+.config-card {
+    background: rgba(30, 30, 30, 0.6);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 20px;
+    padding: 30px;
+    display: flex;
+    gap: 25px;
+    align-items: flex-start;
+    transition: all 0.3s ease;
+}
+
+.card-icon {
+    background: rgba(255, 255, 255, 0.05);
+    padding: 15px;
+    border-radius: 15px;
+    color: #F1C40F;
+}
+
+.card-info h2 {
+    margin: 0 0 10px 0;
+    font-size: 1.4rem;
+    color: white;
+}
+
+.card-info p {
+    color: #aaa;
+    font-size: 0.95rem;
+    line-height: 1.4;
+    margin-bottom: 20px;
+}
+
+/* --- TARJETA DE PÁNICO (Bloqueo) --- */
+.panic-card.active {
+    border-color: #e74c3c;
+    background: rgba(231, 76, 60, 0.1);
+    box-shadow: 0 0 30px rgba(231, 76, 60, 0.2);
+}
+
+.panic-card.active .card-icon {
+    color: #e74c3c;
+    animation: pulse-red 2s infinite;
+}
+
+@keyframes pulse-red {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.1); text-shadow: 0 0 10px red; }
+    100% { transform: scale(1); }
+}
+
+/* Botones de Toggle */
+.btn-toggle {
+    width: 100%;
+    padding: 15px;
+    border: none;
+    border-radius: 10px;
+    font-weight: 800;
+    cursor: pointer;
+    text-transform: uppercase;
+    transition: 0.3s;
+}
+
+.btn-green {
+    background: #2ecc71;
+    color: white;
+}
+.btn-green:hover { background: #27ae60; }
+
+.btn-red {
+    background: #e74c3c;
+    color: white;
+}
+.btn-red:hover { background: #c0392b; }
+
+/* --- SECCIÓN HORARIOS --- */
+.time-inputs {
+    display: flex;
+    gap: 20px;
+}
+
+.time-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    flex: 1;
+}
+
+.time-group label {
+    font-size: 0.8rem;
+    color: #888;
+    text-transform: uppercase;
+    font-weight: bold;
+}
+
+.time-group input {
+    background: #222;
+    border: 1px solid #444;
+    color: white;
+    padding: 12px;
+    border-radius: 8px;
+    font-size: 1.1rem;
+    text-align: center;
+}
+
+/* --- BOTÓN GUARDAR GLOBAL --- */
+.btn-save-global {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    background: #F1C40F;
+    color: #000;
+    border: none;
+    padding: 18px 40px;
+    font-size: 1.1rem;
+    font-weight: 800;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: 0.3s;
+    margin: 0 auto;
+    box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+}
+
+.btn-save-global:hover {
+    background: #d4ac0d;
+    transform: translateY(-3px);
+    box-shadow: 0 15px 25px rgba(241, 196, 15, 0.3);
+}
+
+.btn-save-global:active {
+    transform: translateY(0);
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+    .config-grid {
+        grid-template-columns: 1fr;
+    }
+    .config-card {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+    }
+    .time-inputs {
+        flex-direction: column;
+    }
+}

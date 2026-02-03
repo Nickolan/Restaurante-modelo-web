@@ -1,0 +1,107 @@
+@media (max-width: 768px) {
+  /* 1. AJUSTES GLOBALES */
+  .section-title {
+    font-size: 2rem !important; /* Título más pequeño para pantallas móviles */
+    text-align: center !important;
+    padding-left: 0 !important;
+    margin-bottom: 30px !important;
+  }
+
+  /* 2. NAVBAR (Basado en tu captura) */
+  .navbar {
+    padding: 0 15px !important;
+    height: 70px !important;
+  }
+
+  .navbar-center {
+    display: none !important; /* Ocultamos los botones centrales en móvil */
+  }
+
+  .navbar-left {
+    gap: 15px !important;
+  }
+
+  .navbar-logo {
+    height: 50px !important;
+  }
+
+  .menu-toggle-btn {
+    font-size: 1.8rem !important;
+  }
+
+  /* 3. SECTOR INTRO (HERO) */
+  .restaurant-title {
+    font-size: 2.5rem !important; /* Tamaño legible para teléfonos */
+    padding: 0 10px;
+    letter-spacing: 2px !important;
+  }
+
+  .social-icons-container {
+    right: 50% !important;
+    transform: translateX(50%); /* Centramos los iconos en el pie de la imagen */
+    bottom: 20px !important;
+    gap: 25px !important;
+  }
+
+  /* 4. SECTOR MENÚ (COMBOS) */
+  .menu-section {
+    padding: 40px 10px !important;
+  }
+
+  .combo-card-wrapper {
+    padding: 5px !important;
+  }
+
+  .combo-name-tag {
+    font-size: 1rem !important;
+    padding: 10px !important;
+  }
+
+  /* 5. SECTORES DE DOS COLUMNAS (Reserva, Nosotros, Contacto) */
+  .reservation-content, 
+  .about-content,
+  .contact-info-grid {
+    flex-direction: column !important; /* Apilamos los elementos verticalmente */
+    text-align: center !important;
+    gap: 30px !important;
+  }
+
+  .reservation-text-container,
+  .about-text-container,
+  .contact-column {
+    text-align: center !important;
+    padding: 0 10px;
+  }
+
+  .about-description {
+    text-align: center !important;
+    font-size: 1.1rem !important;
+  }
+
+  /* 6. IMÁGENES */
+  .contact-full-image {
+    aspect-ratio: 4 / 3 !important; /* Ajustamos la proporción para que no sea tan fina en móvil */
+    border-radius: 0 !important; /* Ocupa todo el ancho sin bordes */
+  }
+
+  /* 7. FOOTER */
+  .footer-container {
+    grid-template-columns: 1fr !important; /* Una sola columna */
+    gap: 40px !important;
+    text-align: center !important;
+  }
+
+  .logo-section, 
+  .links-section, 
+  .icons-section, 
+  .contact-section-footer {
+    justify-content: center !important;
+    align-items: center !important;
+    text-align: center !important;
+  }
+
+  .links-section {
+    flex-direction: column !important;
+    gap: 20px !important;
+  }
+}

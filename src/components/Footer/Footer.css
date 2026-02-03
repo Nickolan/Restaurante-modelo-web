@@ -1,0 +1,110 @@
+.footer {
+  background-color: #0a0a0a; /* Fondo muy oscuro para el footer */
+  color: var(--text-main); /* Blanco #FFFFFF */
+  padding: 50px 20px;
+  border-top: 1px solid #222;
+}
+
+.footer-container {
+  max-width: 1300px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1.5fr 2fr 1.5fr 2.5fr;
+  align-items: center;
+  gap: 20px;
+}
+
+/* Estilo del Logo */
+.logo-box {
+  width: 140px;
+  height: 140px;
+  border: 1px solid white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.8rem;
+  font-weight: 300;
+}
+
+/* Enlaces de Navegación */
+.links-section {
+  display: flex;
+  justify-content: space-around;
+  text-align: left;
+}
+
+.links-group {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.links-group a {
+  color: var(--text-main);
+  text-decoration: underline;
+  font-size: 1.1rem;
+  transition: color 0.3s;
+}
+
+.links-group a:hover {
+  color: var(--secondary-color); /* Amarillo en hover */
+}
+
+/* Iconos Centrales */
+.icons-section {
+  display: flex;
+  justify-content: center;
+  gap: 25px;
+}
+
+.icon-wrapper {
+  font-size: 1.8rem;
+  cursor: pointer;
+  transition: transform 0.3s, color 0.3s;
+}
+
+.icon-wrapper:hover {
+  transform: scale(1.2);
+  color: var(--secondary-color);
+}
+
+/* Información de Contacto */
+.contact-section-footer {
+  text-align: left;
+  font-size: 1rem;
+  line-height: 1.6;
+}
+
+.contact-section-footer p {
+  margin-bottom: 8px;
+}
+
+.footer-underline {
+  text-decoration: underline;
+  color: inherit;
+}
+
+/* Diseño Responsivo */
+@media (max-width: 1024px) {
+  .footer-container {
+    grid-template-columns: 1fr 1fr;
+    gap: 40px;
+  }
+}
+
+@media (max-width: 600px) {
+  .footer-container {
+    grid-template-columns: 1fr;
+    text-align: center;
+  }
+  
+  .logo-section, .links-section, .icons-section, .contact-section-footer {
+    display: flex;
+    justify-content: center;
+    text-align: center;
+  }
+  
+  .contact-section-footer {
+    flex-direction: column;
+  }
+}
