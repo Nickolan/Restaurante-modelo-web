@@ -50,10 +50,10 @@ const Home = ({onOpenReserva}) => {
 
         {/* Iconos en la esquina inferior derecha */}
         <div className="social-icons-container">
-          <a href="https://instagram.com" target="_blank" rel="noopener noreferrer">
+          <a href="https://www.instagram.com/n1ko_lan/" target="_blank" rel="noopener noreferrer">
             <FaInstagram className="icon" />
           </a>
-          <a href="https://wa.me/tunimero" target="_blank" rel="noopener noreferrer">
+          <a href="https://wa.me/+5492612156574" target="_blank" rel="noopener noreferrer">
             <FaWhatsapp className="icon" />
           </a>
           <a href="#ubicacion">
@@ -78,7 +78,7 @@ const Home = ({onOpenReserva}) => {
         </div>
       </section>
 
-      <section className="reservation-section">
+      <section id='reservas' className="reservation-section">
         <h2 className="section-title">Reserva tu mesa en minutos</h2>
 
         <div className="reservation-content">
@@ -106,7 +106,7 @@ const Home = ({onOpenReserva}) => {
         </div>
       </section>
 
-      <section className="about-section">
+      <section id='nosotros' className="about-section">
         {/* Título siguiendo la regla de estilo establecida */}
         <h2 className="section-title">Nosotros</h2>
 
@@ -131,7 +131,7 @@ const Home = ({onOpenReserva}) => {
       </section>
 
       {/* SECTOR 5: CONTACTO */}
-      <section className="contact-section">
+      <section id='contacto' className="contact-section">
         <h2 className="section-title">Contacto</h2>
 
         <div className="contact-info-grid">
