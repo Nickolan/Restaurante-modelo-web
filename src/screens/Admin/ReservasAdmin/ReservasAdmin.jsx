@@ -4,10 +4,18 @@ import './ReservasAdmin.css';
 import { Users, RotateCw, Calendar, Clock, MapPin, X, UserPlus } from 'lucide-react';
 
 // 1. HELPER PARA CALCULAR DÍA (Igual que en cliente) <--- NUEVO
+const normalizarTexto = (txt) => {
+    return txt.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+};
+
+// Quita los segundos para comparar horas ("13:00:00" -> "13:00")
+const normalizarHora = (hora) => {
+    return hora.substring(0, 5);
+};
+
 const getDiaSemana = (fechaString) => {
     const dias = ['Domingo', 'Lunes', 'Martes', 'Miercoles', 'Jueves', 'Viernes', 'Sabado'];
-    // Forzamos la zona horaria para evitar que '2026-02-02' se lea como el día anterior
-    const fecha = new Date(fechaString + 'T00:00:00'); 
+    const fecha = new Date(fechaString + 'T00:00:00');
     return dias[fecha.getDay()];
 };
 
@@ -15,16 +23,16 @@ const ReservasAdmin = () => {
     const [fecha, setFecha] = useState(new Date().toISOString().slice(0, 10));
     const [zonaId, setZonaId] = useState('');
     const [hora, setHora] = useState('');
-    
+
     // Datos maestros
     const [zonas, setZonas] = useState([]);
     const [horarios, setHorarios] = useState([]);
     const [turnosConfig, setTurnosConfig] = useState([]); // <--- 2. NUEVO ESTADO PARA IDS
-    
+
     // Estados visuales
     const [mesasVisuales, setMesasVisuales] = useState([]);
     const [loading, setLoading] = useState(false);
-    
+
     // Modal Manual
     const [selectedMesa, setSelectedMesa] = useState(null);
     const [showManualModal, setShowManualModal] = useState(false);
@@ -41,33 +49,47 @@ const ReservasAdmin = () => {
         ]).then(([zonasData, turnosData]) => {
             setZonas(zonasData);
             if (zonasData.length > 0) setZonaId(zonasData[0].id);
-            setTurnosConfig(turnosData || []); 
+            setTurnosConfig(turnosData || []);
         }).catch(err => console.error("Error cargando maestros:", err));
     }, []);
 
     // CARGA DE HORARIOS DISPONIBLES (Strings)
     useEffect(() => {
-        if (fecha) {
-            reservasService.getHorariosDisponibles(fecha)
-                .then(data => {
-                    setHorarios(data);
-                    // Si hay horarios, pre-seleccionar el primero
-                    if (data.length > 0) setHora(data[0]);
-                    else setHora('');
-                })
-                .catch(() => setHorarios([]));
+        if (fecha && turnosConfig.length > 0) {
+            const diaActual = getDiaSemana(fecha); // Ej: "Viernes"
+
+            // 1. Filtramos los turnos que coinciden con el día seleccionado
+            const turnosDelDia = turnosConfig.filter(t =>
+                normalizarTexto(t.dia_semana) === normalizarTexto(diaActual)
+            );
+
+            // 2. Extraemos las horas limpias para el Select
+            // Usamos Set para evitar duplicados si hubiera configuración redundante
+            const horasDisponibles = [...new Set(turnosDelDia.map(t => normalizarHora(t.hora_spot)))];
+
+            // 3. Ordenamos las horas cronológicamente
+            horasDisponibles.sort();
+
+            setHorarios(horasDisponibles);
+
+            // Seleccionar automáticamente la primera opción si cambia el día
+            if (horasDisponibles.length > 0) {
+                setHora(horasDisponibles[0]);
+            } else {
+                setHora('');
+            }
         }
-    }, [fecha]);
+    }, [fecha, turnosConfig]);
 
     // MAPA DE CALOR
     const fetchMapa = async () => {
         if (!fecha || !hora || !zonaId) return;
         setLoading(true);
-        setSelectedMesa(null); 
+        setSelectedMesa(null);
         try {
             const allMesas = await reservasService.getAllMesas();
             const mesasDeZona = allMesas.filter(m => m.zona_id === parseInt(zonaId));
-            
+
             // Traemos las DISPONIBLES según el backend
             const disponibles = await reservasService.getMesasDisponibles(fecha, hora, zonaId, 1);
             const idsDisponibles = new Set(disponibles.map(m => m.id));
@@ -83,7 +105,7 @@ const ReservasAdmin = () => {
             setLoading(false);
         }
     };
-    
+
     useEffect(() => { fetchMapa(); }, [fecha, hora, zonaId]);
 
     // MANEJADORES MODAL
@@ -101,41 +123,45 @@ const ReservasAdmin = () => {
 
         setLoading(true);
         try {
-            // 4. BUSCAMOS EL ID DEL TURNO (Misma lógica que en cliente)
-            const diaSemana = getDiaSemana(fecha); // Ej: "Viernes"
-            
-            const turnoEncontrado = turnosConfig.find(t => 
-                t.hora_spot === hora &&    // Coincide hora (ej: "21:00")
-                t.dia_semana === diaSemana // Coincide día
+            const diaSemana = getDiaSemana(fecha);
+
+            // --- LÓGICA DE BÚSQUEDA MEJORADA ---
+            const turnoEncontrado = turnosConfig.find(t =>
+                // Comparamos horas sin segundos ("13:00" == "13:00")
+                normalizarHora(t.hora_spot) === normalizarHora(hora) &&
+                // Comparamos días sin acentos ("Miercoles" == "Miércoles")
+                normalizarTexto(t.dia_semana) === normalizarTexto(diaSemana)
             );
 
             if (!turnoEncontrado) {
-                throw new Error(`No se encontró un Turno ID configurado para ${diaSemana} a las ${hora}. Revisa la configuración de turnos.`);
+                // Debugging útil para ti si sigue fallando
+                console.log("Buscando:", { hora: normalizarHora(hora), dia: normalizarTexto(diaSemana) });
+                console.log("En config:", turnosConfig.map(t => ({ h: normalizarHora(t.hora_spot), d: normalizarTexto(t.dia_semana) })));
+
+                throw new Error(`No existe configuración de turno para ${diaSemana} a las ${hora}. Revisa la tabla 'Turnos' en base de datos.`);
             }
 
             const payload = {
                 fecha_reserva: fecha,
-                turno_id: turnoEncontrado.id, // <--- AQUI VA EL ID OBLIGATORIO
+                turno_id: turnoEncontrado.id, // ¡ID ENCONTRADO!
                 mesa_id: selectedMesa.id,
                 zona_id: parseInt(zonaId),
-                
                 nombre_cliente: manualForm.nombre,
                 dni_cliente: manualForm.dni,
                 correo_cliente: manualForm.correo || 'admin@local.com',
                 numero_personas: parseInt(manualForm.personas),
-                estado: 'confirmada' // Entra directo
+                estado: 'confirmada'
             };
 
             await reservasService.crearReserva(payload);
-            
+
             alert("✅ Reserva creada con éxito");
             setShowManualModal(false);
             setSelectedMesa(null);
-            fetchMapa(); // Recargar mapa
-            
+            fetchMapa();
+
         } catch (error) {
             console.error(error);
-            // Mensaje de error más amigable
             const msg = error.response?.data?.message || error.message;
             alert(`Error: ${msg}`);
         } finally {
@@ -145,39 +171,39 @@ const ReservasAdmin = () => {
 
     return (
         <div className="reservas-dashboard">
-            <h1 style={{marginBottom: 20}}>Gestión de Reservas</h1>
+            <h1 style={{ marginBottom: 20 }}>Gestión de Reservas</h1>
 
-             {/* BARRA SUPERIOR */}
-             <div className="control-bar">
-                 <div className="control-group">
-                    <label className="control-label"><Calendar size={14}/> Fecha</label>
+            {/* BARRA SUPERIOR */}
+            <div className="control-bar">
+                <div className="control-group">
+                    <label className="control-label"><Calendar size={14} /> Fecha</label>
                     <input type="date" className="control-input" value={fecha} onChange={e => setFecha(e.target.value)} />
                 </div>
                 <div className="control-group">
-                    <label className="control-label"><MapPin size={14}/> Zona</label>
+                    <label className="control-label"><MapPin size={14} /> Zona</label>
                     <select className="control-select" value={zonaId} onChange={e => setZonaId(e.target.value)}>
                         {zonas.map(z => <option key={z.id} value={z.id}>{z.nombre}</option>)}
                     </select>
                 </div>
                 <div className="control-group">
-                    <label className="control-label"><Clock size={14}/> Horario</label>
+                    <label className="control-label"><Clock size={14} /> Horario</label>
                     <select className="control-select" value={hora} onChange={e => setHora(e.target.value)}>
                         {horarios.length === 0 && <option>Cerrado</option>}
                         {horarios.map(h => <option key={h} value={h}>{h}</option>)}
                     </select>
                 </div>
                 <button className="btn-refresh" onClick={fetchMapa} title="Recargar Disponibilidad">
-                    <RotateCw size={20} className={loading ? 'spin' : ''}/>
+                    <RotateCw size={20} className={loading ? 'spin' : ''} />
                 </button>
             </div>
 
             {/* PLANO DE MESAS */}
             <div className="floor-plan">
                 {mesasVisuales.length === 0 && !loading && <p>Selecciona fecha y horario para ver disponibilidad.</p>}
-                
+
                 {mesasVisuales.map(mesa => (
-                    <div 
-                        key={mesa.id} 
+                    <div
+                        key={mesa.id}
                         className={`table-card status-${mesa.estadoCalculado} ${selectedMesa?.id === mesa.id ? 'status-selected' : ''}`}
                         onClick={() => setSelectedMesa(mesa)}
                     >
@@ -197,21 +223,21 @@ const ReservasAdmin = () => {
                 {selectedMesa && (
                     <div>
                         <p><strong>Capacidad:</strong> {selectedMesa.capacidad} pax</p>
-                        
+
                         {selectedMesa.estadoCalculado === 'free' ? (
-                            <div style={{marginTop: 30}}>
-                                <div style={{textAlign:'center', marginBottom:20, color:'#2ecc71'}}>
+                            <div style={{ marginTop: 30 }}>
+                                <div style={{ textAlign: 'center', marginBottom: 20, color: '#2ecc71' }}>
                                     <UserPlus size={40} />
                                     <p>Mesa Disponible</p>
                                 </div>
-                                <button className="btn-refresh" style={{width:'100%', background:'#F1C40F', color:'black', fontWeight:'bold'}} onClick={handleOpenManualModal}>
+                                <button className="btn-refresh" style={{ width: '100%', background: '#F1C40F', color: 'black', fontWeight: 'bold' }} onClick={handleOpenManualModal}>
                                     + Crear Reserva
                                 </button>
                             </div>
                         ) : (
-                            <div style={{marginTop: 30, textAlign:'center', color:'#e74c3c'}}>
-                                <p style={{fontWeight:'bold'}}>RESERVADA</p>
-                                <p style={{fontSize:'0.9rem', opacity:0.7}}>Esta mesa ya está ocupada en el sistema para este turno.</p>
+                            <div style={{ marginTop: 30, textAlign: 'center', color: '#e74c3c' }}>
+                                <p style={{ fontWeight: 'bold' }}>RESERVADA</p>
+                                <p style={{ fontSize: '0.9rem', opacity: 0.7 }}>Esta mesa ya está ocupada en el sistema para este turno.</p>
                             </div>
                         )}
                     </div>
@@ -222,37 +248,37 @@ const ReservasAdmin = () => {
             {showManualModal && (
                 <div className="manual-modal-overlay">
                     <div className="manual-modal-content">
-                        <button className="btn-close-modal" onClick={() => setShowManualModal(false)}><X size={24}/></button>
-                        
+                        <button className="btn-close-modal" onClick={() => setShowManualModal(false)}><X size={24} /></button>
+
                         <div className="manual-modal-header">
                             <h3>Nueva Reserva Manual</h3>
-                            <p style={{color:'#F1C40F'}}>Mesa {selectedMesa?.numero_mesa} • {fecha} • {hora}</p>
+                            <p style={{ color: '#F1C40F' }}>Mesa {selectedMesa?.numero_mesa} • {fecha} • {hora}</p>
                         </div>
 
                         <form onSubmit={handleSubmitManual}>
                             <div className="form-row">
                                 <label>Nombre del Cliente</label>
                                 <input className="manual-input" placeholder="Ej: Juan Pérez" autoFocus
-                                    value={manualForm.nombre} onChange={e => setManualForm({...manualForm, nombre: e.target.value})}
+                                    value={manualForm.nombre} onChange={e => setManualForm({ ...manualForm, nombre: e.target.value })}
                                 />
                             </div>
                             <div className="form-row">
                                 <label>DNI / Identificación</label>
                                 <input className="manual-input" placeholder="Documento"
-                                    value={manualForm.dni} onChange={e => setManualForm({...manualForm, dni: e.target.value})}
+                                    value={manualForm.dni} onChange={e => setManualForm({ ...manualForm, dni: e.target.value })}
                                 />
                             </div>
-                            <div className="form-row" style={{display:'flex', gap:15}}>
-                                <div style={{flex:1}}>
+                            <div className="form-row" style={{ display: 'flex', gap: 15 }}>
+                                <div style={{ flex: 1 }}>
                                     <label>Personas</label>
                                     <input type="number" className="manual-input" min="1" max={selectedMesa?.capacidad + 2}
-                                        value={manualForm.personas} onChange={e => setManualForm({...manualForm, personas: e.target.value})}
+                                        value={manualForm.personas} onChange={e => setManualForm({ ...manualForm, personas: e.target.value })}
                                     />
                                 </div>
-                                <div style={{flex:2}}>
+                                <div style={{ flex: 2 }}>
                                     <label>Correo (Opcional)</label>
                                     <input type="email" className="manual-input" placeholder="juan@mail.com"
-                                        value={manualForm.correo} onChange={e => setManualForm({...manualForm, correo: e.target.value})}
+                                        value={manualForm.correo} onChange={e => setManualForm({ ...manualForm, correo: e.target.value })}
                                     />
                                 </div>
                             </div>

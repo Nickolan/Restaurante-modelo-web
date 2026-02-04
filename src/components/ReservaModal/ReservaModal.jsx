@@ -3,9 +3,20 @@ import './ReservaModal.css';
 import { reservasService } from '../../services/reservas.service';
 import { X, Calendar, User, Clock, MapPin } from 'lucide-react';
 
+// --- HELPERS DE NORMALIZACIÓN (Igual que en Admin) ---
+const normalizarTexto = (txt) => {
+    if (!txt) return "";
+    return txt.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+};
+
+const normalizarHora = (hora) => {
+    if (!hora) return "";
+    return hora.substring(0, 5); // "20:00:00" -> "20:00"
+};
+
 const getDiaSemana = (fechaString) => {
     const dias = ['Domingo', 'Lunes', 'Martes', 'Miercoles', 'Jueves', 'Viernes', 'Sabado'];
-    // Ajuste de zona horaria simple para evitar desfases
+    // Forzamos hora local para evitar saltos de día por timezone
     const fecha = new Date(fechaString + 'T00:00:00'); 
     return dias[fecha.getDay()];
 };
@@ -17,7 +28,7 @@ const ReservaModal = ({ isOpen, onClose }) => {
     // Estados de Datos
     const [zonas, setZonas] = useState([]);
     const [horarios, setHorarios] = useState([]);
-    const [turnosConfig, setTurnosConfig] = useState([]);
+    const [turnosConfig, setTurnosConfig] = useState([]); // Nuestra fuente de verdad
     const [mesas, setMesas] = useState([]);
 
     // Selección del Usuario
@@ -25,26 +36,26 @@ const ReservaModal = ({ isOpen, onClose }) => {
         fecha: '',
         personas: 2,
         zona_id: null,
-        hora: null,     // El string "20:00"
-        turno_id: null, // <--- EL ID QUE FALTABA
+        hora: null,
         mesa_id: null,
         cliente: { nombre: '', dni: '', correo: '' }
     });
 
     const [reservaConfirmada, setReservaConfirmada] = useState(null);
 
-    // Cargar Zonas al abrir
+    // Cargar Zonas y Configuración al abrir
     useEffect(() => {
         if (isOpen) {
             setLoading(true);
             Promise.all([
                 reservasService.getZonas(),
-                reservasService.getAllTurnosConfig() // Traemos todos los turnos para tenerlos en memoria
+                reservasService.getAllTurnosConfig() 
             ]).then(([zonasData, turnosData]) => {
                 setZonas(zonasData);
-                setTurnosConfig(turnosData);
+                setTurnosConfig(turnosData || []); // Aseguramos array
                 setStep(1);
                 setReservaConfirmada(null);
+                setSelection(prev => ({...prev, fecha: '', hora: null, mesa_id: null})); // Reset parcial
                 setLoading(false);
             }).catch(err => {
                 console.error(err);
@@ -55,71 +66,78 @@ const ReservaModal = ({ isOpen, onClose }) => {
 
     // --- MANEJADORES DE PASOS ---
 
-    // Paso 1 -> 2: Buscar Horarios
-    const handleSearchHorarios = async () => {
+    // Paso 1 -> 2: Calcular Horarios (LÓGICA LOCAL)
+    const handleSearchHorarios = () => {
         if (!selection.fecha || !selection.zona_id) return alert("Selecciona fecha y zona");
+        
         setLoading(true);
         try {
-            const horas = await reservasService.getHorariosDisponibles(selection.fecha);
-            console.log(horas);
+            const diaActual = getDiaSemana(selection.fecha); // Ej: "Viernes"
             
-            setHorarios(horas);
+            // 1. Filtramos los turnos configurados para ese día
+            const turnosDelDia = turnosConfig.filter(t => 
+                normalizarTexto(t.dia_semana) === normalizarTexto(diaActual)
+            );
+
+            // 2. Extraemos las horas limpias (sin duplicados)
+            const horasDisponibles = [...new Set(turnosDelDia.map(t => normalizarHora(t.hora_spot)))];
+            
+            // 3. Ordenamos
+            horasDisponibles.sort();
+
+            console.log(`Día: ${diaActual}, Horarios encontrados:`, horasDisponibles);
+
+            setHorarios(horasDisponibles);
             setStep(2);
         } catch (e) {
-            alert("Error al buscar horarios");
+            console.error(e);
+            alert("Error al procesar horarios");
         } finally {
             setLoading(false);
         }
     };
 
-    // Paso 2 -> 3: Buscar Mesas (La lógica Core)
+    // Paso 2 -> 3: Buscar Mesas (Mantenemos llamada al backend para disponibilidad real)
     const handleSelectHora = async (hora) => {
-        console.log("Hora seleccionada", hora);
-        
         setSelection({ ...selection, hora });
         setLoading(true);
         try {
-            // AQUÍ SE APLICA LA LÓGICA DE NEGOCIO:
-            // Buscamos mesas que cumplan capacidad Y zona Y no estén reservadas
             const mesasDisponibles = await reservasService.getMesasDisponibles(
                 selection.fecha,
-                hora,
+                hora, // Enviamos "20:00", el backend lo maneja
                 selection.zona_id,
                 selection.personas
             );
             setMesas(mesasDisponibles);
             setStep(3);
         } catch (e) {
-            alert("Error al buscar mesas");
+            alert("Error al buscar mesas disponibles");
         } finally {
             setLoading(false);
         }
     };
 
-    // Paso 4: Confirmar Reserva
+    // Paso 4: Confirmar Reserva (Buscando ID estricto)
     const handleSubmit = async () => {
         setLoading(true);
         try {
-            // 1. Encontrar el turno_id correcto
-            const diaSemana = getDiaSemana(selection.fecha); // Ej: "Viernes"
+            const diaSemana = getDiaSemana(selection.fecha);
             
-            // Buscamos en la lista maestra un turno que coincida en HORA y DÍA
+            // BÚSQUEDA ROBUSTA DEL ID
             const turnoEncontrado = turnosConfig.find(t => 
-                t.hora_spot === selection.hora &&  // "20:00" === "20:00"
-                t.dia_semana === diaSemana         // "Viernes" === "Viernes"
+                normalizarHora(t.hora_spot) === normalizarHora(selection.hora) &&
+                normalizarTexto(t.dia_semana) === normalizarTexto(diaSemana)
             );
 
             if (!turnoEncontrado) {
-                throw new Error(`No se encontró configuración de turno para ${diaSemana} a las ${selection.hora}`);
+                throw new Error(`Error de configuración: No se encontró ID de turno para ${diaSemana} a las ${selection.hora}`);
             }
-
-            console.log("Turno ID encontrado:", turnoEncontrado.id);
 
             const payload = {
                 fecha_reserva: selection.fecha,
                 hora: selection.hora,
                 mesa_id: selection.mesa_id,
-                turno_id: turnoEncontrado.id, // <--- AQUI ENVIAMOS EL ID REAL
+                turno_id: turnoEncontrado.id, // <--- ID SEGURO
                 numero_personas: parseInt(selection.personas),
                 nombre_cliente: selection.cliente.nombre,
                 dni_cliente: selection.cliente.dni,
@@ -165,6 +183,7 @@ const ReservaModal = ({ isOpen, onClose }) => {
                             <label><Calendar size={16}/> Fecha</label>
                             <input type="date" className="modal-input" 
                                 onChange={e => setSelection({...selection, fecha: e.target.value})}
+                                value={selection.fecha}
                             />
                         </div>
                         <div className="input-group">
@@ -189,7 +208,7 @@ const ReservaModal = ({ isOpen, onClose }) => {
                         </div>
                         <button className="btn-confirm" style={{width:'100%', marginTop:'20px'}} 
                             onClick={handleSearchHorarios} disabled={loading}>
-                            {loading ? 'Buscando...' : 'Buscar Horarios'}
+                            {loading ? 'Cargando...' : 'Buscar Horarios'}
                         </button>
                     </div>
                 )}
@@ -197,7 +216,7 @@ const ReservaModal = ({ isOpen, onClose }) => {
                 {/* --- PASO 2: SELECCIONAR HORARIO --- */}
                 {step === 2 && (
                     <div className="step-content">
-                        <h3>Selecciona una hora para el {selection.fecha}</h3>
+                        <h3>Horarios para el {selection.fecha}</h3>
                         <div className="grid-selection">
                             {horarios.map(hora => (
                                 <button key={hora} className="selection-btn" onClick={() => handleSelectHora(hora)}>
@@ -205,7 +224,11 @@ const ReservaModal = ({ isOpen, onClose }) => {
                                 </button>
                             ))}
                         </div>
-                        {horarios.length === 0 && <p>No hay turnos disponibles para este día.</p>}
+                        {horarios.length === 0 && (
+                            <div style={{textAlign:'center', color:'#e74c3c', marginTop:20}}>
+                                <p>No hay turnos configurados para este día de la semana.</p>
+                            </div>
+                        )}
                         <div className="modal-actions">
                             <button className="btn-back" onClick={() => setStep(1)}>Atrás</button>
                         </div>
@@ -227,12 +250,12 @@ const ReservaModal = ({ isOpen, onClose }) => {
                                         setStep(4);
                                     }}
                                 >
-                                    <div>{mesa.numero}</div>
-                                    <small>{mesa.descripcion}</small>
+                                    <div>Mesa {mesa.numero_mesa}</div>
+                                    <small>{mesa.capacidad} pax</small>
                                 </button>
                             ))}
                         </div>
-                        {mesas.length === 0 && <p style={{color:'red'}}>Lo sentimos, no hay mesas con esa capacidad en este horario.</p>}
+                        {mesas.length === 0 && <p style={{color:'red', textAlign:'center', marginTop:20}}>No hay mesas disponibles con esa capacidad.</p>}
                         
                         <div className="modal-actions">
                             <button className="btn-back" onClick={() => setStep(2)}>Atrás</button>
@@ -243,14 +266,14 @@ const ReservaModal = ({ isOpen, onClose }) => {
                 {/* --- PASO 4: DATOS DEL CLIENTE --- */}
                 {step === 4 && (
                     <div className="step-content">
-                        <h3>Confirmar Reserva</h3>
+                        <h3>Tus Datos</h3>
                         <div className="input-group">
                             <input placeholder="Nombre Completo" className="modal-input"
                                 onChange={e => setSelection({...selection, cliente: {...selection.cliente, nombre: e.target.value}})}
                             />
                         </div>
                         <div className="input-group">
-                            <input placeholder="DNI" className="modal-input"
+                            <input placeholder="DNI (Identificación)" className="modal-input"
                                 onChange={e => setSelection({...selection, cliente: {...selection.cliente, dni: e.target.value}})}
                             />
                         </div>
@@ -263,7 +286,7 @@ const ReservaModal = ({ isOpen, onClose }) => {
                         <div className="modal-actions">
                             <button className="btn-back" onClick={() => setStep(3)}>Atrás</button>
                             <button className="btn-confirm" onClick={handleSubmit} disabled={loading}>
-                                {loading ? 'Confirmando...' : 'Reservar Ahora'}
+                                {loading ? 'Reservando...' : 'Confirmar Reserva'}
                             </button>
                         </div>
                     </div>
@@ -272,13 +295,18 @@ const ReservaModal = ({ isOpen, onClose }) => {
                 {/* --- PASO 5: ÉXITO --- */}
                 {step === 5 && reservaConfirmada && (
                     <div className="step-content" style={{textAlign:'center'}}>
-                        <p>Tu reserva ha sido confirmada.</p>
-                        <div style={{background:'#222', padding:'15px', borderRadius:'10px', margin:'20px 0'}}>
-                            <h1 style={{color:'#F1C40F'}}>{reservaConfirmada.numero_reserva}</h1>
-                            <p>Estado: {reservaConfirmada.estado}</p>
+                        <div style={{color:'#2ecc71', marginBottom:15}}>
+                            <Calendar size={48} />
                         </div>
-                        <p>Te enviamos los detalles a tu correo.</p>
-                        <button className="btn-confirm" onClick={onClose}>Cerrar</button>
+                        <h2 style={{color: 'white'}}>¡Reserva Confirmada!</h2>
+                        <div style={{background:'#222', padding:'20px', borderRadius:'10px', margin:'20px 0', border:'1px solid #333'}}>
+                            <h1 style={{color:'#F1C40F', fontSize:'2rem', margin:0}}>{reservaConfirmada.numero_reserva}</h1>
+                            <p style={{color:'#aaa', margin:'5px 0 0'}}>Código de Reserva</p>
+                        </div>
+                        <p style={{fontSize:'0.9rem', color:'#ccc'}}>
+                            Te esperamos el <strong>{selection.fecha}</strong> a las <strong>{selection.hora}</strong>.
+                        </p>
+                        <button className="btn-confirm" onClick={onClose} style={{marginTop:20}}>Cerrar</button>
                     </div>
                 )}
 
