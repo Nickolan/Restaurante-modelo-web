@@ -13,6 +13,21 @@ export const menuService = {
         return res.data;
     },
 
+    createCategoria: async (data) => {
+        const res = await axios.post('/menu/categoria', data);
+        return res.data;
+    },
+
+    updateCategoria: async (id, data) => {
+        const res = await axios.patch(`/menu/categoria/${id}`, data);
+        return res.data;
+    },
+
+    deleteCategoria: async (id) => {
+        const res = await axios.delete(`/menu/categoria/${id}`);
+        return res.data;
+    },
+
     // Crear
     createProducto: async (data) => {
         const res = await axios.post('/menu/producto', data);
