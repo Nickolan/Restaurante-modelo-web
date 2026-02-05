@@ -6,7 +6,6 @@ import Navbar from './components/Navbar/Navbar'
 import Home from './screens/HomeScreen/Home'
 import CartaScreen from './screens/CartaScreen/CartaScreen'
 
-import axios from 'axios'
 import Logo from './assets/Logo.png'
 import CheckoutScreen from './screens/CheckoutScreen/CheckoutScreen'
 import ReservaModal from './components/ReservaModal/ReservaModal'
@@ -22,7 +21,6 @@ import ConfigAdmin from './screens/Admin/ConfigAdmin/ConfigAdmin'
 
 
 function App() {
-  axios.defaults.baseURL = "http://localhost:3000";
   const [isReservaOpen, setIsReservaOpen] = useState(false);
   const openReserva = () => setIsReservaOpen(true);
 

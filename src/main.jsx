@@ -8,7 +8,7 @@ import { store } from './store/store.js'
 import axios from 'axios'
 
 // 1. Configuración Base
-axios.defaults.baseURL = "http://localhost:3000";
+axios.defaults.baseURL = import.meta.env.VITE_SERVER_URL;
 
 // 2. INTERCEPTOR DE SOLICITUDES (El portero de salida)
 axios.interceptors.request.use(
