@@ -25,7 +25,7 @@ const CheckoutScreen = () => {
         direccion: ''
     });
 
-    const [mensajeBloqueo ,setMensajeBloqueo] = useState(null);
+    const [mensajeBloqueo, setMensajeBloqueo] = useState(null);
 
     const [preferenceId, setPreferenceId] = useState(null);
     const costoEnvio = 500; // Costo fijo de ejemplo
@@ -59,7 +59,7 @@ const CheckoutScreen = () => {
                         latitude, longitude
                     });
                     console.log(response.data);
-                    
+
 
                     setFormData(prev => ({
                         ...prev,
@@ -89,6 +89,9 @@ const CheckoutScreen = () => {
             return;
         }
 
+        console.log(items);
+        
+
         try {
             // --- PASO A: Crear el Pedido en tu Base de Datos ---
             // Estructuramos el objeto tal cual lo espera tu entidad Pedido/DetallePedido
@@ -99,10 +102,21 @@ const CheckoutScreen = () => {
                 direccion: formData.direccion,
                 total: totalAmount + costoEnvio, // Total calculado
                 // Asegúrate que tu backend espere "detalles" o ajusta según tu DTO
-                detalles: items.map(item => ({
-                    producto_id: item.id,
+                detalles: items.map((item) => ({
+                    //pedido_id: null, // El ID se asigna en el backend o tras crear la cabecera, depende de tu lógica actual
                     cantidad: item.cantidad,
-                    precio_unitario: item.precio
+                    precio_unitario: item.precio,
+
+                    // --- ESTA ES LA LÓGICA QUE DEBES AGREGAR ---
+                    // Si el item tiene la bandera esCombo (que pusiste en ComboCard), lo marcamos como combo
+                    tipo_item: item.esCombo ? 'combo' : 'producto',
+
+                    // Si es combo, llenamos combo_id y dejamos producto_id en null
+                    combo_id: item.esCombo ? item.id : null,
+
+                    // Si NO es combo, llenamos producto_id y dejamos combo_id en null
+                    producto_id: item.esCombo ? null : item.id
+                    // -------------------------------------------
                 }))
             };
 
@@ -118,9 +132,11 @@ const CheckoutScreen = () => {
 
                 const detallePayload = {
                     pedido_id: nuevoPedido.id, // Usamos el ID que nos devolvió el paso anterior
-                    producto_id: item.id,
+                    producto_id: item.esCombo ? null : item.id,
                     cantidad: item.cantidad,
-                    precio_unitario: item.precio
+                    precio_unitario: item.precio,
+                    combo_id: item.esCombo ? item.id : null,
+                    tipo_item: item.esCombo ? 'combo' : 'producto',
                     // Opcional: Si manejas combos y tu backend lo requiere:
                     // combo_id: item.esCombo ? item.id : null 
                 };

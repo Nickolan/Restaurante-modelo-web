@@ -21,6 +21,7 @@ const cartSlice = createSlice({
           precio: nuevoItem.precio,
           imagen: nuevoItem.imagen,
           cantidad: 1,
+          esCombo: nuevoItem.esCombo,
         });
       } else {
         // Si ya existe, solo aumentamos la cantidad
