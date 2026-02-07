@@ -233,32 +233,27 @@ const CheckoutScreen = () => {
                         {items.length === 0 && <p style={{ color: '#888' }}>No hay productos en el carrito.</p>}
                     </div>
 
-                    <div className="summary-footer">
-                        <div className="cost-row">
-                            <span>Subtotal</span>
-                            <span>${totalAmount.toFixed(2)}</span>
+                    <div className="payment-wrapper">
+                            {preferenceId ? (
+                                <div id="wallet_container">
+                                    <Wallet 
+                                        initialization={{ preferenceId: preferenceId }} 
+                                        customization={{ 
+                                            texts: { valueProp: 'smart_option' },
+                                            // Opcional: Visual customization para que combine mejor con tu tema oscuro
+                                            visual: {
+                                                buttonBackground: 'default', // o 'black'
+                                                borderRadius: '10px',
+                                            }
+                                        }} 
+                                    />
+                                </div>
+                            ) : (
+                                <button className="btn-mercadopago" onClick={handlePagar}>
+                                    Confirmar y Pagar
+                                </button>
+                            )}
                         </div>
-                        <div className="cost-row">
-                            <span>Costo de envío</span>
-                            <span>${costoEnvio.toFixed(2)}</span>
-                        </div>
-
-                        <div className="total-row">
-                            <span>Precio Total</span>
-                            <span>${(totalAmount + costoEnvio).toFixed(2)}</span>
-                        </div>
-
-                        {/* Si ya tenemos el ID de preferencia, mostramos el Wallet */}
-                        {preferenceId ? (
-                            <div id="wallet_container">
-                                <Wallet initialization={{ preferenceId: preferenceId }} customization={{ texts: { valueProp: 'smart_option' } }} />
-                            </div>
-                        ) : (
-                            <button className="btn-mercadopago" onClick={handlePagar}>
-                                Confirmar y Pagar
-                            </button>
-                        )}
-                    </div>
                 </div>
             </div>
         </div>

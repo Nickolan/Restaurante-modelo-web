@@ -1,0 +1,373 @@
+/* AdminCombos.css */
+
+/* Aseguramos que el padding y border no aumenten el ancho total */
+.admin-section * {
+  box-sizing: border-box;
+}
+
+.admin-section {
+  /* width: 100%;  <-- ELIMINADO: Esto causaba desbordes si el padre tiene padding */
+  width: auto;
+  max-width: 1200px;
+  margin: 0 auto;
+  color: #e0e0e0;
+  animation: fadeIn 0.4s ease-in-out;
+  /* Evita scroll horizontal accidental */
+  overflow-x: hidden; 
+}
+
+h2 {
+  font-size: 1.8rem;
+  margin-bottom: 20px;
+  color: #ffffff;
+  border-bottom: 2px solid #ffa500;
+  display: inline-block;
+  padding-bottom: 5px;
+}
+
+h3 {
+  font-size: 1.2rem;
+  margin-bottom: 15px;
+  color: #ffa500;
+}
+
+/* --- FORMULARIO --- */
+.admin-form-row {
+  display: flex;
+  gap: 15px;
+  background-color: rgba(255, 255, 255, 0.05);
+  padding: 20px;
+  border-radius: 12px;
+  margin-bottom: 30px;
+  flex-wrap: wrap;
+  align-items: center;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.admin-form-row input {
+  flex: 1;
+  min-width: 200px;
+  padding: 12px 15px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background-color: rgba(0, 0, 0, 0.3);
+  color: white;
+}
+
+.admin-form-row input:focus {
+  outline: none;
+  border-color: #ffa500;
+}
+
+.btn-add {
+  background-color: #ffa500;
+  color: #121212;
+  border: none;
+  padding: 12px 25px;
+  border-radius: 8px;
+  font-weight: bold;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: transform 0.2s, background-color 0.2s;
+  white-space: nowrap; /* Evita que el texto del botón se rompa */
+}
+
+.btn-add:hover {
+  background-color: #ffb733;
+  transform: translateY(-2px);
+}
+
+/* --- GRID DE TARJETAS --- */
+.items-grid {
+  display: grid;
+  /* Ajuste automático para evitar desbordes */
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 20px;
+  padding-bottom: 20px; /* Espacio extra abajo */
+}
+
+.item-card.combo-card {
+  background-color: #1e1e1e;
+  border-radius: 12px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-left: 5px solid #ffa500;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.item-card.combo-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+}
+
+.card-info h3 {
+  margin: 0 0 10px 0;
+  color: white;
+  font-size: 1.4rem;
+}
+
+.card-info p {
+  font-size: 1.2rem;
+  color: #4caf50;
+  font-weight: bold;
+  margin: 5px 0;
+}
+
+.card-info small {
+  display: block;
+  color: #aaa;
+  margin-bottom: 10px;
+  font-style: italic;
+}
+
+.item-count {
+  font-size: 0.9rem !important;
+  color: #ffa500 !important;
+  background: rgba(255, 165, 0, 0.1);
+  padding: 5px 10px;
+  border-radius: 4px;
+  display: inline-block;
+}
+
+.card-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 15px;
+  padding-top: 15px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.btn-edit, .btn-delete {
+  flex: 1;
+  padding: 10px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  font-weight: 600;
+}
+
+.btn-edit {
+  background-color: #2a2a2a;
+  color: white;
+  border: 1px solid rgba(255,255,255,0.2);
+}
+
+.btn-edit:hover {
+  background-color: #333;
+}
+
+.btn-delete {
+  background-color: rgba(255, 68, 68, 0.1);
+  color: #ff4444;
+}
+
+.btn-delete:hover {
+  background-color: rgba(255, 68, 68, 0.2);
+}
+
+/* --- VISTA DE DETALLE --- */
+
+.btn-back {
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: white;
+  padding: 8px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+.btn-back:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.combo-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: linear-gradient(90deg, rgba(255,165,0,0.1) 0%, rgba(0,0,0,0) 100%);
+  padding: 20px;
+  border-radius: 12px;
+  margin-bottom: 30px;
+  border: 1px solid rgba(255, 165, 0, 0.2);
+}
+
+.combo-header h2 {
+  margin: 0;
+  border: none;
+  font-size: 1.5rem;
+}
+
+.price-tag {
+  font-size: 2rem;
+  font-weight: bold;
+  color: #4caf50;
+  text-shadow: 0 0 10px rgba(76, 175, 80, 0.3);
+}
+
+.combo-content-layout {
+  display: grid;
+  grid-template-columns: 1fr 1.5fr;
+  gap: 30px;
+  /* Importante: permite que el contenido crezca sin forzar scroll interno */
+  align-items: start; 
+}
+
+/* Panel Izquierdo */
+.add-item-panel {
+  background-color: #1e1e1e;
+  padding: 25px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  /* Se queda fijo al hacer scroll si la pantalla es grande */
+  position: sticky;
+  top: 20px; 
+}
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 8px;
+  color: #aaa;
+  font-size: 0.9rem;
+}
+
+.form-group select,
+.form-group input {
+  width: 100%;
+  padding: 12px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background-color: #121212;
+  color: white;
+}
+
+.btn-save {
+  width: 100%;
+  background-color: #4caf50;
+  color: white;
+  border: none;
+  padding: 14px;
+  border-radius: 8px;
+  font-weight: bold;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.btn-save:hover {
+  background-color: #43a047;
+}
+
+/* Panel Derecho (Lista) */
+.current-items-list {
+  background-color: #1e1e1e;
+  padding: 25px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  /* Evitamos definir height o overflow para que use el scroll principal */
+}
+
+.current-items-list ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.combo-item-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 15px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.combo-item-row:last-child {
+  border-bottom: none;
+}
+
+.qty-badge {
+  background-color: #ffa500;
+  color: #121212;
+  font-weight: 800;
+  padding: 5px 10px;
+  border-radius: 20px;
+  margin-right: 15px;
+  min-width: 30px;
+  text-align: center;
+}
+
+.prod-name {
+  flex: 1;
+  font-size: 1.1rem;
+}
+
+.btn-delete-small {
+  background: transparent;
+  border: 1px solid rgba(255, 68, 68, 0.3);
+  color: #ff4444;
+  width: 35px;
+  height: 35px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.btn-delete-small:hover {
+  background-color: #ff4444;
+  color: white;
+}
+
+.empty-msg {
+  text-align: center;
+  color: #666;
+  font-style: italic;
+  padding: 40px 0;
+}
+
+/* --- RESPONSIVE --- */
+@media (max-width: 768px) {
+  .combo-content-layout {
+    grid-template-columns: 1fr;
+  }
+  
+  .add-item-panel {
+    position: static; /* En móvil quitamos el sticky para que fluya natural */
+  }
+
+  .combo-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+  
+  .admin-form-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}

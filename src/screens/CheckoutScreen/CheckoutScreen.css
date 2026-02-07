@@ -66,15 +66,13 @@
   gap: 10px; /* Espacio mínimo entre ellos */
 }
 
-.form-input {
-  padding: 18px; /* Un poco más grandes para llenar mejor */
+.form-group .form-input {
+  width: 100%;
+  padding: 12px;
   border-radius: 8px;
-  border: 1px solid #bbb;
+  border: 1px solid rgba(255, 255, 255, 0.2);
   background-color: #fdfdfd;
-  color: #000000;
-  font-size: 1rem;
-  outline: none;
-  transition: border-color 0.3s;
+  color: #121212;
 }
 
 .form-input:focus {
@@ -246,6 +244,73 @@
   border-radius: 10px;
   cursor: pointer;
   transition: transform 0.2s, background-color 0.2s;
+}
+
+.btn-mercadopago:hover {
+  background-color: #e58300;
+  transform: translateY(-2px);
+}
+
+.summary-footer {
+  border-top: 1px solid #333;
+  padding-top: 20px;
+  flex-shrink: 0; 
+  /* Agregamos esto para asegurar que el footer siempre tenga espacio */
+  display: flex;
+  flex-direction: column;
+}
+
+.cost-row {
+  display: flex;
+  justify-content: space-between;
+  color: #888;
+  margin-bottom: 8px;
+  font-size: 0.95rem;
+}
+
+.total-row {
+  display: flex;
+  justify-content: space-between;
+  color: white;
+  font-size: 1.5rem;
+  font-weight: 800;
+  margin-top: 15px;
+  margin-bottom: 25px;
+}
+
+/* --- NUEVO: Contenedor "Blindado" para el botón --- */
+.payment-wrapper {
+  width: 100%;
+  /* Esta altura mínima es CLAVE: Coincide con la altura de tu botón .btn-mercadopago 
+     (padding 18px*2 + texto ~24px = ~60px).
+     Esto evita que la tarjeta salte cuando carga MP. */
+  min-height: 65px; 
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Ajuste para el ID que envuelve a Wallet */
+#wallet_container {
+  width: 100%;
+  /* Mercado Pago a veces inyecta márgenes negativos, esto lo previene */
+  overflow: hidden; 
+  border-radius: 10px;
+}
+
+.btn-mercadopago {
+  background-color: #FF9203;
+  color: white;
+  width: 100%;
+  border: none;
+  padding: 18px;
+  font-size: 1.2rem;
+  font-weight: bold;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: transform 0.2s, background-color 0.2s;
+  /* Asegura que llene el wrapper */
+  display: block; 
 }
 
 .btn-mercadopago:hover {

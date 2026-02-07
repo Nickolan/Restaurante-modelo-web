@@ -45,7 +45,7 @@ export const menuService = {
         const res = await axios.delete(`/menu/producto/${id}`);
         return res.data;
     },
-    
+
     getCombos: async () => {
         const res = await axios.get('/menu/combo'); // Tu endpoint de NestJS
         return res.data;
@@ -65,5 +65,45 @@ export const menuService = {
     deleteProducto: async (id) => {
         const res = await axios.delete(`/menu/producto/${id}`);
         return res.data;
-    }
+    },
+
+    getCombos: async () => {
+        const response = await axios.get('/menu/combo');
+        return response.data;
+    },
+
+    getComboById: async (id) => {
+        const response = await axios.get(`/menu/combo/${id}`);
+        return response.data;
+    },
+
+    createCombo: async (comboData) => {
+        const response = await axios.post('/menu/combo', comboData);
+        return response.data;
+    },
+
+    updateCombo: async (id, comboData) => {
+        const response = await axios.patch(`/menu/combo/${id}`, comboData);
+        return response.data;
+    },
+
+    deleteCombo: async (id) => {
+        const response = await axios.delete(`/menu/combo/${id}`);
+        return response.data;
+    },
+
+    // ==========================================
+    // SECCIÓN DE ITEMS DEL COMBO (Combo-Productos)
+    // ==========================================
+
+    addComboProducto: async (data) => {
+        // data debe ser { combo_id, producto_id, cantidad }
+        const response = await axios.post('/menu/combo-producto', data);
+        return response.data;
+    },
+
+    removeComboProducto: async (id) => {
+        const response = await axios.delete(`/menu/combo-producto/${id}`);
+        return response.data;
+    },
 };

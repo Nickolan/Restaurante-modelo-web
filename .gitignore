@@ -28,3 +28,4 @@ dist-ssr
 
 *.cjs
 *_web.txt
+*_src.txt

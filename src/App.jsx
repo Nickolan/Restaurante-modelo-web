@@ -18,6 +18,8 @@ import MenuAdmin from './screens/Admin/MenuAdmin/MenuAdmin'
 import ReservasAdmin from './screens/Admin/ReservasAdmin/ReservasAdmin'
 import PedidosAdmin from './screens/Admin/PedidosAdmin/PedidosAdmin'
 import ConfigAdmin from './screens/Admin/ConfigAdmin/ConfigAdmin'
+import AdminCombos from './screens/Admin/AdminCombos/AdminCombos'
+import ZonasAdmin from './screens/Admin/ZonasAdmin/ZonasAdmin'
 
 
 function App() {
@@ -38,6 +40,8 @@ function App() {
                 <Route path='/admin/pedidos' element={<PedidosAdmin/>} />
                 <Route path='/admin/reservas' element={<ReservasAdmin />} />
                 <Route path='/admin/menu' element={<MenuAdmin />} />
+                <Route path='/admin/combos' element={<AdminCombos />} />
+                <Route path='/admin/zonas' element={<ZonasAdmin />} />
                 <Route path='/admin/config' element={<ConfigAdmin/>} />
             </Route>
         </Route>

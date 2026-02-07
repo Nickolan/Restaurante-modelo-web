@@ -79,5 +79,45 @@ export const reservasService = {
     getReservaById: async (id) => {
         const res = await axios.get(`/reservas/reserva/${id}`);
         return res.data;
+    },
+
+    getZonas: async () => {
+        const res = await axios.get('/reservas/zona');
+        console.log(res.data);
+        
+        return res.data;
+    },
+
+    createZona: async (data) => {
+        const res = await axios.post('/reservas/zona', data);
+        return res.data;
+    },
+
+    updateZona: async (id, data) => {
+        const res = await axios.patch(`/reservas/zona/${id}`, data);
+        return res.data;
+    },
+
+    deleteZona: async (id) => {
+        const res = await axios.delete(`/reservas/zona/${id}`);
+        return res.data;
+    },
+    getMesas: async () => {
+        const res = await axios.get('/reservas/mesa');
+        return res.data;
+    },
+    createMesa: async (data) => {
+        console.log("Mesa: ", data);
+        const res = await axios.post('/reservas/mesa', data);
+        
+        return res.data;
+    },
+    updateMesa: async (id, data) => {
+        const res = await axios.patch(`/reservas/mesa/${id}`, data);
+        return res.data;
+    },
+    deleteMesa: async (id) => {
+        const res = await axios.delete(`/reservas/mesa/${id}`);
+        return res.data;
     }
 };

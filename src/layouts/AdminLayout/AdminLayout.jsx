@@ -2,7 +2,7 @@ import React from 'react';
 import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { logout } from '../../store/authSlice';
-import { LayoutDashboard, Coffee, Calendar, ShoppingBag, Settings, LogOut } from 'lucide-react';
+import { LayoutDashboard, Coffee, Calendar, ShoppingBag, Settings, LogOut, MapPin } from 'lucide-react';
 import './AdminLayout.css';
 import Logo from '../../assets/Logo.png'; 
 
@@ -22,6 +22,8 @@ const AdminLayout = () => {
         { path: '/admin/pedidos', icon: <ShoppingBag size={20}/>, label: 'Pedidos' },
         { path: '/admin/reservas', icon: <Calendar size={20}/>, label: 'Reservas' },
         { path: '/admin/menu', icon: <Coffee size={20}/>, label: 'Menú & Carta' },
+        { path: '/admin/combos', icon: <Coffee size={20}/>, label: 'Combos' },
+        { path: '/admin/zonas', icon: <MapPin size={20}/>, label: 'Zonas' },
         { path: '/admin/config', icon: <Settings size={20}/>, label: 'Configuración' },
     ];
 

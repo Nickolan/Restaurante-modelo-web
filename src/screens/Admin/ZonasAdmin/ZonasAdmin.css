@@ -1,0 +1,436 @@
+/* --- LAYOUT GENERAL DE LA PÁGINA --- */
+.zonas-admin-page {
+  width: 100%;
+  padding-bottom: 2rem;
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.page-header h1 {
+  font-size: 1.8rem;
+  margin-bottom: 0.5rem;
+  color: #fff;
+  font-weight: 700;
+}
+
+.page-header p {
+  color: #aaa;
+  margin-bottom: 2rem;
+  font-size: 0.95rem;
+}
+
+/* --- GRID PRINCIPAL (2 COLUMNAS) --- */
+.admin-panels-grid {
+  display: grid;
+  grid-template-columns: 1fr 1.6fr; /* Panel derecho (Mesas) un poco más ancho */
+  gap: 2rem;
+  align-items: start;
+}
+
+/* --- ESTILOS DE LOS PANELES (TARJETAS) --- */
+.admin-panel {
+  background: rgba(30, 30, 30, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  padding: 1.5rem;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+}
+
+.panel-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  padding-bottom: 15px;
+}
+
+.panel-header h2 {
+  font-size: 1.2rem;
+  margin: 0;
+  color: #fff;
+  font-weight: 600;
+}
+
+.text-accent {
+  color: #f1c40f; /* Color amarillo principal */
+}
+
+/* --- FORMULARIOS --- */
+
+/* Formulario en línea (Zonas) */
+.inline-form {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+/* Formulario en grid/bloque (Mesas) */
+.grid-form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  background: rgba(0, 0, 0, 0.25); /* Fondo más oscuro para el área de input */
+  padding: 20px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.form-row {
+  display: flex;
+  gap: 12px;
+  width: 100%;
+}
+
+/* --- INPUTS Y GRUPOS --- */
+.input-group {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.input-group.grow {
+  flex-grow: 1;
+}
+
+.input-group.full-width {
+  width: 100%;
+}
+
+.input-icon {
+  position: absolute;
+  left: 12px;
+  color: #666;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.admin-input, 
+.admin-select {
+  background: #1a1a1a;
+  border: 1px solid #333;
+  border-radius: 8px;
+  padding: 10px 12px 10px 38px; /* Padding izquierdo para el icono */
+  color: #fff;
+  outline: none;
+  width: 100%;
+  font-size: 0.9rem;
+  transition: all 0.2s ease;
+}
+
+.admin-input:focus, 
+.admin-select:focus {
+  border-color: #f1c40f;
+  background: #222;
+  box-shadow: 0 0 0 2px rgba(241, 196, 15, 0.1);
+}
+
+/* Inputs pequeños (Nro, Cap) */
+.admin-input.small {
+  width: 90px; 
+}
+
+/* --- BOTONES --- */
+.btn-icon-primary {
+  background: #f1c40f;
+  border: none;
+  border-radius: 8px;
+  width: 42px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: #1a1a1a;
+  transition: transform 0.2s, background 0.2s;
+}
+
+.btn-icon-primary:hover {
+  background: #d4ac0d;
+  transform: translateY(-2px);
+}
+
+.btn-icon-secondary {
+  background: transparent;
+  border: 1px solid #444;
+  border-radius: 8px;
+  width: 42px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #aaa;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.btn-icon-secondary:hover {
+  border-color: #f75c5c;
+  color: #f75c5c;
+}
+
+.form-buttons {
+  display: flex;
+  gap: 10px;
+  margin-top: 5px;
+}
+
+.btn-primary {
+  background: #f1c40f;
+  color: #1a1a1a;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  flex-grow: 1;
+  transition: 0.2s;
+}
+
+.btn-primary:hover {
+  background: #d4ac0d;
+}
+
+.btn-secondary {
+  background: transparent;
+  color: #aaa;
+  border: 1px solid #444;
+  padding: 10px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: 0.2s;
+}
+
+.btn-secondary:hover {
+  background: rgba(255, 255, 255, 0.05);
+  color: #fff;
+  border-color: #666;
+}
+
+/* --- LISTA DE ZONAS (IZQUIERDA) --- */
+.list-container {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 400px;
+  overflow-y: auto;
+  padding-right: 5px;
+}
+
+/* Scrollbar personalizado para la lista */
+.list-container::-webkit-scrollbar {
+  width: 4px;
+}
+.list-container::-webkit-scrollbar-thumb {
+  background: #444;
+  border-radius: 2px;
+}
+
+.list-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.03);
+  padding: 12px 15px;
+  border-radius: 8px;
+  transition: 0.2s;
+  border: 1px solid transparent;
+}
+
+.list-item:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+.item-name {
+  font-weight: 500;
+  color: #eee;
+}
+
+/* --- TABLA DE MESAS (DERECHA) --- */
+.table-container {
+  overflow-x: auto;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.admin-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+
+.admin-table th {
+  text-align: left;
+  padding: 12px 15px;
+  color: #888;
+  font-weight: 600;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(0, 0, 0, 0.2);
+}
+
+.admin-table td {
+  padding: 12px 15px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  vertical-align: middle;
+}
+
+.admin-table tr:last-child td {
+  border-bottom: none;
+}
+
+.admin-table tr:hover {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+/* Badges y Textos de Tabla */
+.badge-number {
+  background: #333;
+  color: #fff;
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-family: 'Courier New', monospace;
+  font-weight: bold;
+  border: 1px solid #444;
+}
+
+.mesa-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.capacidad {
+  font-weight: 600;
+  color: #ddd;
+}
+
+.descripcion-text {
+  font-size: 0.8rem;
+  color: #777;
+  font-style: italic;
+  max-width: 180px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: inline-block;
+}
+
+.badge-zona {
+  background: rgba(241, 196, 15, 0.15);
+  color: #f1c40f;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+/* Acciones (Iconos) */
+.item-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+}
+
+.action-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 6px;
+  border-radius: 6px;
+  transition: 0.2s;
+  color: #666;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.action-btn.edit:hover {
+  color: #3498db;
+  background: rgba(52, 152, 219, 0.15);
+}
+
+.action-btn.delete:hover {
+  color: #e74c3c;
+  background: rgba(231, 76, 60, 0.15);
+}
+
+.empty-text {
+  text-align: center;
+  color: #555;
+  padding: 30px;
+  font-style: italic;
+}
+
+.badge-estado {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: 1px solid rgba(255,255,255,0.1);
+}
+
+.badge-estado.disponible {
+  background: rgba(46, 204, 113, 0.15); /* Verde transparente */
+  color: #2ecc71;
+  border-color: rgba(46, 204, 113, 0.3);
+}
+
+.badge-estado.bloqueada {
+  background: rgba(231, 76, 60, 0.15); /* Rojo transparente */
+  color: #e74c3c;
+  border-color: rgba(231, 76, 60, 0.3);
+}
+
+/* Fila bloqueada (Efecto visual opcional en toda la fila) */
+.row-bloqueada td {
+  opacity: 0.7; /* Atenuar un poco la fila */
+}
+.row-bloqueada td:first-child,
+.row-bloqueada td:last-child {
+  opacity: 1; /* Mantener iconos visibles */
+}
+
+/* Botones de Acción de Estado */
+.action-btn.lock:hover {
+  color: #e67e22; /* Naranja al hacer hover para bloquear */
+  background: rgba(230, 126, 34, 0.15);
+}
+
+.action-btn.unlock:hover {
+  color: #2ecc71; /* Verde al hacer hover para desbloquear */
+  background: rgba(46, 204, 113, 0.15);
+}
+
+/* --- RESPONSIVE --- */
+@media (max-width: 1024px) {
+  .admin-panels-grid {
+    grid-template-columns: 1fr; /* Una columna en tablets/móviles */
+    gap: 1.5rem;
+  }
+  
+  .form-row {
+    flex-wrap: wrap; /* Permitir que los inputs bajen si no caben */
+  }
+
+  .admin-input.small {
+    flex-grow: 1; /* Que crezcan para llenar espacio en móvil */
+    width: auto;
+  }
+  
+  .btn-primary {
+    width: 100%;
+  }
+}
