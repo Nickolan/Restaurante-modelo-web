@@ -1,43 +1,73 @@
-/* Estilo "Dark Mode" Profesional */
+/* =========================================
+   1. Estructura General y Fondo
+   ========================================= */
 .admin-container {
     display: flex;
     min-height: 100vh;
-    /* Quitamos el color plano y ponemos la imagen */
     background-image: url('../../assets/Cocina.png'); 
     background-size: cover;
     background-position: center;
-    background-attachment: fixed; /* Efecto parallax */
+    background-attachment: fixed;
     position: relative;
-    z-index: 0;
+    overflow-x: hidden; /* Evita scroll horizontal al deslizar sidebar */
 }
 
+/* Overlay oscuro del fondo */
 .admin-container::before {
     content: '';
     position: absolute;
     top: 0; left: 0; width: 100%; height: 100%;
-    background: rgba(0, 0, 0, 0.55); /* 85% de oscuridad */
-    backdrop-filter: blur(8px);      /* Desenfoque */
-    z-index: -1;
+    background: rgba(0, 0, 0, 0.65); /* Un poco más oscuro para mejor contraste móvil */
+    backdrop-filter: blur(8px);
+    z-index: 0;
 }
 
-/* Sidebar Oscuro */
+/* =========================================
+   2. Sidebar (Barra Lateral)
+   ========================================= */
 .admin-sidebar {
     width: 260px;
-    background-color: rgba(20, 20, 20, 0.95);
+    background-color: rgba(20, 20, 20, 0.98); /* Casi opaco para legibilidad */
     border-right: 1px solid rgba(255, 255, 255, 0.1);
     color: white;
     display: flex;
     flex-direction: column;
     position: fixed;
+    top: 0;
+    left: 0;
     height: 100vh;
+    z-index: 1000; /* Por encima de todo */
+    transition: transform 0.3s ease-in-out; /* Animación suave */
+    box-shadow: 4px 0 15px rgba(0,0,0,0.5);
 }
 
 .sidebar-header {
-    padding: 30px 20px;
+    padding: 20px;
     text-align: center;
     border-bottom: 1px solid #333;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
 }
-.sidebar-logo { width: 60px; display: block; margin: 0 auto 10px; }
+
+.sidebar-logo { 
+    width: 50px; 
+    display: block; 
+}
+
+/* Botón de cerrar (Visible solo en móvil) */
+.close-sidebar-btn {
+    display: none; /* Oculto en escritorio */
+    position: absolute;
+    right: 15px;
+    top: 20px;
+    background: none;
+    border: none;
+    color: white;
+    font-size: 1.5rem;
+    cursor: pointer;
+}
 
 .sidebar-nav {
     flex: 1;
@@ -45,6 +75,7 @@
     overflow-y: auto;
 }
 
+/* Items de Navegación */
 .nav-item {
     display: flex;
     align-items: center;
@@ -52,21 +83,24 @@
     padding: 15px 25px;
     color: #aaa;
     text-decoration: none;
-    transition: 0.2s;
+    transition: all 0.2s ease;
     border-left: 4px solid transparent;
 }
 
 .nav-item:hover {
     background-color: #252525;
     color: white;
+    padding-left: 30px; /* Pequeño efecto de movimiento */
 }
 
 .nav-item.active {
-    background-color: #252525;
-    color: #F1C40F; /* Amarillo corporativo */
+    background-color: rgba(241, 196, 15, 0.1); /* Fondo sutil amarillo */
+    color: #F1C40F;
     border-left-color: #F1C40F;
+    font-weight: 600;
 }
 
+/* Footer del Sidebar */
 .sidebar-footer {
     padding: 20px;
     border-top: 1px solid #333;
@@ -77,26 +111,95 @@
 }
 
 .user-info { display: flex; align-items: center; gap: 10px; }
+
 .user-avatar {
     width: 35px; height: 35px;
     background: #F1C40F; color: #000;
     border-radius: 50%;
     display: flex; align-items: center; justify-content: center;
     font-weight: bold;
+    font-size: 0.9rem;
 }
+
 .user-details { display: flex; flex-direction: column; }
 .user-name { font-size: 0.9rem; font-weight: bold; }
 .user-role { font-size: 0.75rem; color: #777; }
 
 .btn-logout {
-    background: none; border: none; color: #ff6b6b; cursor: pointer; padding: 5px;
+    background: none; border: none; color: #ff6b6b; cursor: pointer; padding: 8px;
+    transition: transform 0.2s;
 }
-.btn-logout:hover { color: red; }
+.btn-logout:hover { color: red; transform: scale(1.1); }
 
-/* Contenido Principal */
+/* =========================================
+   3. Contenido Principal
+   ========================================= */
 .admin-content {
     flex: 1;
-    margin-left: 260px; /* Deja espacio para el sidebar */
+    margin-left: 260px; /* Espacio para el sidebar fijo */
     padding: 40px;
-    overflow-y: auto;
+    position: relative;
+    z-index: 1;
+    transition: margin-left 0.3s ease-in-out;
+    width: calc(100% - 260px);
+}
+
+/* Botón Hamburguesa (Para abrir menú en móvil) */
+.menu-toggle-btn {
+    display: none; /* Oculto en escritorio */
+    background: #F1C40F;
+    color: #000;
+    border: none;
+    padding: 10px;
+    border-radius: 8px;
+    cursor: pointer;
+    margin-bottom: 20px;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+}
+
+/* =========================================
+   4. RESPONSIVE (Tablets y Móviles)
+   ========================================= */
+@media (max-width: 968px) {
+    /* Ocultar sidebar moviéndolo a la izquierda */
+    .admin-sidebar {
+        transform: translateX(-100%);
+    }
+
+    /* Clase para cuando el menú está abierto (se agrega con JS/React) */
+    .admin-sidebar.open {
+        transform: translateX(0);
+    }
+
+    /* El contenido ocupa todo el ancho */
+    .admin-content {
+        margin-left: 0;
+        width: 100%;
+        padding: 20px;
+    }
+
+    /* Mostrar botón hamburguesa y cerrar */
+    .menu-toggle-btn {
+        display: flex; 
+    }
+    
+    .close-sidebar-btn {
+        display: block;
+    }
+
+    /* Overlay para oscurecer el contenido cuando el menú está abierto */
+    .sidebar-overlay {
+        display: none;
+        position: fixed;
+        top: 0; left: 0; width: 100%; height: 100%;
+        background: rgba(0,0,0,0.7);
+        z-index: 999; /* Debajo del sidebar, encima del contenido */
+        backdrop-filter: blur(3px);
+    }
+
+    .sidebar-overlay.active {
+        display: block;
+    }
 }

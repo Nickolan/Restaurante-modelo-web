@@ -1,297 +1,511 @@
 import React, { useState, useEffect } from 'react';
+import { 
+  Calendar, Clock, Trash2, Plus, CalendarDays, ListOrdered, 
+  UserPlus, Search, CheckCircle, MapPin, Users, Mail, Phone 
+} from 'lucide-react';
 import { reservasService } from '../../../services/reservas.service';
 import './ReservasAdmin.css';
-import { Users, RotateCw, Calendar, Clock, MapPin, X, UserPlus } from 'lucide-react';
 
-// 1. HELPER PARA CALCULAR DÍA (Igual que en cliente) <--- NUEVO
-const normalizarTexto = (txt) => {
-    return txt.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
-};
-
-// Quita los segundos para comparar horas ("13:00:00" -> "13:00")
-const normalizarHora = (hora) => {
-    return hora.substring(0, 5);
-};
-
-const getDiaSemana = (fechaString) => {
-    const dias = ['Domingo', 'Lunes', 'Martes', 'Miercoles', 'Jueves', 'Viernes', 'Sabado'];
-    const fecha = new Date(fechaString + 'T00:00:00');
-    return dias[fecha.getDay()];
-};
+const DIAS_SEMANA = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
 
 const ReservasAdmin = () => {
-    const [fecha, setFecha] = useState(new Date().toISOString().slice(0, 10));
-    const [zonaId, setZonaId] = useState('');
-    const [hora, setHora] = useState('');
+  const [activeTab, setActiveTab] = useState('reservas'); // 'reservas' | 'nueva' | 'turnos'
+  
+  // Datos Maestros
+  const [zonas, setZonas] = useState([]);
+  const [turnos, setTurnos] = useState([]);
+  const [reservas, setReservas] = useState([]);
+  const [loading, setLoading] = useState(false);
 
-    // Datos maestros
-    const [zonas, setZonas] = useState([]);
-    const [horarios, setHorarios] = useState([]);
-    const [turnosConfig, setTurnosConfig] = useState([]); // <--- 2. NUEVO ESTADO PARA IDS
+  // --- ESTADOS: NUEVA RESERVA MANUAL ---
+  const [manualStep, setManualStep] = useState(1); // 1: Filtros, 2: Cliente
+  const [mesasDisponibles, setMesasDisponibles] = useState([]);
+  const [turnosDelDia, setTurnosDelDia] = useState([]);
+  
+  const [reservaForm, setReservaForm] = useState({
+    fecha: '',
+    hora: '',     // String HH:MM:SS
+    turno_id: '', // ID numérico
+    zona_id: '',
+    personas: '',
+    mesa_id: null,
+    nombre_cliente: '',
+    dni_cliente: '',
+    correo_cliente: '',
+    telefono_cliente: ''
+  });
 
-    // Estados visuales
-    const [mesasVisuales, setMesasVisuales] = useState([]);
-    const [loading, setLoading] = useState(false);
+  // --- ESTADOS: CONFIGURACIÓN TURNOS ---
+  const [turnoForm, setTurnoForm] = useState({
+    dia_semana: 'Viernes',
+    hora_spot: ''
+  });
 
-    // Modal Manual
-    const [selectedMesa, setSelectedMesa] = useState(null);
-    const [showManualModal, setShowManualModal] = useState(false);
-    const [manualForm, setManualForm] = useState({
-        nombre: '', dni: '', correo: '', personas: 2
-    });
+  // --- EFECTOS ---
+  useEffect(() => {
+    loadDataInicial();
+  }, []);
 
-    // CARGA INICIAL
-    useEffect(() => {
-        // Ahora cargamos Zonas Y TurnosConfig al mismo tiempo
-        Promise.all([
-            reservasService.getZonas(),
-            reservasService.getAllTurnosConfig() // <--- 3. CARGAMOS LA CONFIGURACIÓN
-        ]).then(([zonasData, turnosData]) => {
-            setZonas(zonasData);
-            if (zonasData.length > 0) setZonaId(zonasData[0].id);
-            setTurnosConfig(turnosData || []);
-        }).catch(err => console.error("Error cargando maestros:", err));
-    }, []);
+  useEffect(() => {
+    if (activeTab === 'reservas') loadReservas();
+    if (activeTab === 'turnos') loadTurnos();
+  }, [activeTab]);
 
-    // CARGA DE HORARIOS DISPONIBLES (Strings)
-    useEffect(() => {
-        if (fecha && turnosConfig.length > 0) {
-            const diaActual = getDiaSemana(fecha); // Ej: "Viernes"
+  // Filtrar turnos cuando cambia la fecha en el formulario manual
+  useEffect(() => {
+    if (reservaForm.fecha && turnos.length > 0) {
+      // Ajuste de zona horaria simple para obtener el día correcto
+      const [year, month, day] = reservaForm.fecha.split('-').map(Number);
+      const dateObj = new Date(year, month - 1, day); 
+      const nombreDia = DIAS_SEMANA[dateObj.getDay()];
 
-            // 1. Filtramos los turnos que coinciden con el día seleccionado
-            const turnosDelDia = turnosConfig.filter(t =>
-                normalizarTexto(t.dia_semana) === normalizarTexto(diaActual)
-            );
+      const filtrados = turnos.filter(t => t.dia_semana === nombreDia);
+      setTurnosDelDia(filtrados);
+    }
+  }, [reservaForm.fecha, turnos]);
 
-            // 2. Extraemos las horas limpias para el Select
-            // Usamos Set para evitar duplicados si hubiera configuración redundante
-            const horasDisponibles = [...new Set(turnosDelDia.map(t => normalizarHora(t.hora_spot)))];
 
-            // 3. Ordenamos las horas cronológicamente
-            horasDisponibles.sort();
+  // --- CARGAS DE DATOS ---
+  const loadDataInicial = async () => {
+    try {
+      const [zData, tData] = await Promise.all([
+        reservasService.getZonas(),
+        reservasService.getTurnos()
+      ]);
+      setZonas(zData);
+      setTurnos(tData);
+    } catch (error) {
+      console.error("Error cargando maestros:", error);
+    }
+  };
 
-            setHorarios(horasDisponibles);
+  const loadReservas = async () => {
+    setLoading(true);
+    try {
+      const data = await reservasService.getAllReservas();
+      setReservas(data);
+    } catch (error) {
+      console.error("Error cargando reservas:", error);
+    } finally { setLoading(false); }
+  };
 
-            // Seleccionar automáticamente la primera opción si cambia el día
-            if (horasDisponibles.length > 0) {
-                setHora(horasDisponibles[0]);
-            } else {
-                setHora('');
-            }
-        }
-    }, [fecha, turnosConfig]);
+  const loadTurnos = async () => {
+    try {
+      const data = await reservasService.getTurnos();
+      setTurnos(data);
+    } catch (error) { console.error(error); }
+  };
 
-    // MAPA DE CALOR
-    const fetchMapa = async () => {
-        if (!fecha || !hora || !zonaId) return;
-        setLoading(true);
-        setSelectedMesa(null);
-        try {
-            const allMesas = await reservasService.getAllMesas();
-            const mesasDeZona = allMesas.filter(m => m.zona_id === parseInt(zonaId));
 
-            // Traemos las DISPONIBLES según el backend
-            const disponibles = await reservasService.getMesasDisponibles(fecha, hora, zonaId, 1);
-            const idsDisponibles = new Set(disponibles.map(m => m.id));
+  // --- FUNCIONES: NUEVA RESERVA MANUAL ---
+  const handleManualInput = (e) => {
+    const { name, value } = e.target;
+    if (name === 'turno_obj') {
+      // El select guarda un JSON para tener ID y Hora a la vez
+      if(!value) return;
+      const obj = JSON.parse(value);
+      setReservaForm({ ...reservaForm, turno_id: obj.id, hora: obj.hora_spot });
+    } else {
+      setReservaForm({ ...reservaForm, [name]: value });
+    }
+  };
 
-            const mapaFinal = mesasDeZona.map(mesa => ({
-                ...mesa,
-                estadoCalculado: idsDisponibles.has(mesa.id) ? 'free' : 'reserved'
-            }));
-            setMesasVisuales(mapaFinal);
-        } catch (error) {
-            console.error(error);
-        } finally {
-            setLoading(false);
-        }
-    };
+  const handleBuscarMesas = async (e) => {
+    e.preventDefault();
+    if (!reservaForm.fecha || !reservaForm.hora || !reservaForm.zona_id || !reservaForm.personas) {
+      alert("Por favor complete todos los campos de búsqueda.");
+      return;
+    }
 
-    useEffect(() => { fetchMapa(); }, [fecha, hora, zonaId]);
+    setLoading(true);
+    try {
+      const result = await reservasService.getMesasDisponibles(
+        reservaForm.fecha,
+        reservaForm.hora,
+        reservaForm.zona_id,
+        reservaForm.personas
+      );
+      setMesasDisponibles(result);
+      if (result.length === 0) alert("No se encontraron mesas disponibles para esos criterios.");
+    } catch (error) {
+      alert("Error al buscar disponibilidad.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    // MANEJADORES MODAL
-    const handleOpenManualModal = () => {
-        setManualForm({
-            nombre: '', dni: '', correo: '', personas: selectedMesa?.capacidad || 2
-        });
-        setShowManualModal(true);
-    };
+  const handleSelectMesa = (mesaId) => {
+    setReservaForm({ ...reservaForm, mesa_id: mesaId });
+    setManualStep(2); // Pasar a datos cliente
+  };
 
-    // --- CORRECCIÓN CRÍTICA EN EL SUBMIT ---
-    const handleSubmitManual = async (e) => {
-        e.preventDefault();
-        if (!manualForm.nombre || !manualForm.dni) return alert("Completa nombre y DNI");
+  const handleConfirmarReserva = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    try {
+      const payload = {
+        fecha_reserva: reservaForm.fecha,
+        turno_id: parseInt(reservaForm.turno_id),
+        mesa_id: reservaForm.mesa_id,
+        numero_personas: parseInt(reservaForm.personas),
+        nombre_cliente: reservaForm.nombre_cliente,
+        dni_cliente: reservaForm.dni_cliente,
+        correo_cliente: reservaForm.correo_cliente,
+        telefono_cliente: reservaForm.telefono_cliente,
+        estado: 'confirmada' // Asumimos estado confirmado por ser admin
+      };
 
-        setLoading(true);
-        try {
-            const diaSemana = getDiaSemana(fecha);
+      await reservasService.crearReserva(payload);
+      alert("¡Reserva creada exitosamente!");
+      
+      // Reset total
+      setReservaForm({
+        fecha: '', hora: '', turno_id: '', zona_id: '', personas: '', mesa_id: null,
+        nombre_cliente: '', dni_cliente: '', correo_cliente: '', telefono_cliente: ''
+      });
+      setManualStep(1);
+      setMesasDisponibles([]);
+      setActiveTab('reservas'); // Volver al listado
+      loadReservas();
 
-            // --- LÓGICA DE BÚSQUEDA MEJORADA ---
-            const turnoEncontrado = turnosConfig.find(t =>
-                // Comparamos horas sin segundos ("13:00" == "13:00")
-                normalizarHora(t.hora_spot) === normalizarHora(hora) &&
-                // Comparamos días sin acentos ("Miercoles" == "Miércoles")
-                normalizarTexto(t.dia_semana) === normalizarTexto(diaSemana)
-            );
+    } catch (error) {
+      alert("Error al crear la reserva: " + (error.message || "Intente nuevamente."));
+    } finally {
+      setLoading(false);
+    }
+  };
 
-            if (!turnoEncontrado) {
-                // Debugging útil para ti si sigue fallando
-                console.log("Buscando:", { hora: normalizarHora(hora), dia: normalizarTexto(diaSemana) });
-                console.log("En config:", turnosConfig.map(t => ({ h: normalizarHora(t.hora_spot), d: normalizarTexto(t.dia_semana) })));
 
-                throw new Error(`No existe configuración de turno para ${diaSemana} a las ${hora}. Revisa la tabla 'Turnos' en base de datos.`);
-            }
+  // --- FUNCIONES: GESTIÓN DE TURNOS ---
+  const handleCreateTurno = async (e) => {
+    e.preventDefault();
+    if (!turnoForm.hora_spot) return alert("Seleccione una hora");
+    try {
+      await reservasService.createTurno(turnoForm);
+      setTurnoForm({ ...turnoForm, hora_spot: '' });
+      loadTurnos();
+    } catch (error) { alert("Error al crear turno"); }
+  };
 
-            const payload = {
-                fecha_reserva: fecha,
-                turno_id: turnoEncontrado.id, // ¡ID ENCONTRADO!
-                mesa_id: selectedMesa.id,
-                zona_id: parseInt(zonaId),
-                nombre_cliente: manualForm.nombre,
-                dni_cliente: manualForm.dni,
-                correo_cliente: manualForm.correo || 'admin@local.com',
-                numero_personas: parseInt(manualForm.personas),
-                estado: 'confirmada'
-            };
+  const handleDeleteTurno = async (id) => {
+    if (window.confirm("¿Eliminar este horario?")) {
+      try {
+        await reservasService.deleteTurno(id);
+        loadTurnos();
+      } catch (error) { alert("Error al eliminar"); }
+    }
+  };
 
-            await reservasService.crearReserva(payload);
+  // Agrupador para visualización de turnos
+  const turnosPorDia = DIAS_SEMANA.map(dia => ({
+    dia,
+    spots: turnos
+      .filter(t => t.dia_semana === dia)
+      .sort((a, b) => a.hora_spot.localeCompare(b.hora_spot))
+  }));
 
-            alert("✅ Reserva creada con éxito");
-            setShowManualModal(false);
-            setSelectedMesa(null);
-            fetchMapa();
+  return (
+    <div className="reservas-page fade-in">
+      <div className="page-header">
+        <h1>Administración de Reservas</h1>
+        <p>Gestione reservas, disponibilidad y horarios del restaurante.</p>
+      </div>
 
-        } catch (error) {
-            console.error(error);
-            const msg = error.response?.data?.message || error.message;
-            alert(`Error: ${msg}`);
-        } finally {
-            setLoading(false);
-        }
-    };
+      {/* TABS DE NAVEGACIÓN */}
+      <div className="tabs-container">
+        <button 
+          className={`tab-btn ${activeTab === 'reservas' ? 'active' : ''}`}
+          onClick={() => setActiveTab('reservas')}
+        >
+          <ListOrdered size={18} /> Listado
+        </button>
+        <button 
+          className={`tab-btn ${activeTab === 'nueva' ? 'active' : ''}`}
+          onClick={() => setActiveTab('nueva')}
+        >
+          <UserPlus size={18} /> Nueva Reserva
+        </button>
+        <button 
+          className={`tab-btn ${activeTab === 'turnos' ? 'active' : ''}`}
+          onClick={() => setActiveTab('turnos')}
+        >
+          <CalendarDays size={18} /> Configurar Turnos
+        </button>
+      </div>
 
-    return (
-        <div className="reservas-dashboard">
-            <h1 style={{ marginBottom: 20 }}>Gestión de Reservas</h1>
-
-            {/* BARRA SUPERIOR */}
-            <div className="control-bar">
-                <div className="control-group">
-                    <label className="control-label"><Calendar size={14} /> Fecha</label>
-                    <input type="date" className="control-input" value={fecha} onChange={e => setFecha(e.target.value)} />
-                </div>
-                <div className="control-group">
-                    <label className="control-label"><MapPin size={14} /> Zona</label>
-                    <select className="control-select" value={zonaId} onChange={e => setZonaId(e.target.value)}>
-                        {zonas.map(z => <option key={z.id} value={z.id}>{z.nombre}</option>)}
-                    </select>
-                </div>
-                <div className="control-group">
-                    <label className="control-label"><Clock size={14} /> Horario</label>
-                    <select className="control-select" value={hora} onChange={e => setHora(e.target.value)}>
-                        {horarios.length === 0 && <option>Cerrado</option>}
-                        {horarios.map(h => <option key={h} value={h}>{h}</option>)}
-                    </select>
-                </div>
-                <button className="btn-refresh" onClick={fetchMapa} title="Recargar Disponibilidad">
-                    <RotateCw size={20} className={loading ? 'spin' : ''} />
-                </button>
-            </div>
-
-            {/* PLANO DE MESAS */}
-            <div className="floor-plan">
-                {mesasVisuales.length === 0 && !loading && <p>Selecciona fecha y horario para ver disponibilidad.</p>}
-
-                {mesasVisuales.map(mesa => (
-                    <div
-                        key={mesa.id}
-                        className={`table-card status-${mesa.estadoCalculado} ${selectedMesa?.id === mesa.id ? 'status-selected' : ''}`}
-                        onClick={() => setSelectedMesa(mesa)}
-                    >
-                        <span className="table-number">{mesa.numero_mesa}</span>
-                        <div className="table-status-text">{mesa.estadoCalculado === 'free' ? 'Libre' : 'Ocupada'}</div>
-                    </div>
+      {/* --- SECCIÓN 1: LISTADO DE RESERVAS --- */}
+      {activeTab === 'reservas' && (
+        <div className="reservas-list-section fade-in">
+          <div className="table-container">
+            <table className="admin-table">
+              <thead>
+                <tr>
+                  <th>Ref</th>
+                  <th>Fecha</th>
+                  <th>Hora</th>
+                  <th>Cliente</th>
+                  <th>Mesa</th>
+                  <th>Pers.</th>
+                  <th>Estado</th>
+                </tr>
+              </thead>
+              <tbody>
+                {reservas.map(res => (
+                  <tr key={res.id}>
+                    <td><span className="badge-ref">{res.numero_reserva?.slice(-4) || `#${res.id}`}</span></td>
+                    <td>{new Date(res.fecha_reserva).toLocaleDateString()}</td>
+                    <td>{res.turno?.hora_spot.slice(0,5)}</td>
+                    <td>
+                      <div className="cliente-cell">
+                        <span className="cli-name">{res.nombre_cliente}</span>
+                        <span className="cli-dni">{res.dni_cliente}</span>
+                      </div>
+                    </td>
+                    <td>Mesa {res.mesa?.numero_mesa} ({res.mesa?.zona?.nombre})</td>
+                    <td>{res.numero_personas}</td>
+                    <td>
+                      <span className={`status-badge ${res.estado}`}>
+                        {res.estado}
+                      </span>
+                    </td>
+                  </tr>
                 ))}
-            </div>
-
-            {/* PANEL LATERAL */}
-            <div className={`details-panel ${selectedMesa ? 'open' : ''}`}>
-                <div className="panel-header">
-                    <h2>Mesa {selectedMesa?.numero_mesa}</h2>
-                    <button className="btn-close" onClick={() => setSelectedMesa(null)}><X /></button>
-                </div>
-
-                {selectedMesa && (
-                    <div>
-                        <p><strong>Capacidad:</strong> {selectedMesa.capacidad} pax</p>
-
-                        {selectedMesa.estadoCalculado === 'free' ? (
-                            <div style={{ marginTop: 30 }}>
-                                <div style={{ textAlign: 'center', marginBottom: 20, color: '#2ecc71' }}>
-                                    <UserPlus size={40} />
-                                    <p>Mesa Disponible</p>
-                                </div>
-                                <button className="btn-refresh" style={{ width: '100%', background: '#F1C40F', color: 'black', fontWeight: 'bold' }} onClick={handleOpenManualModal}>
-                                    + Crear Reserva
-                                </button>
-                            </div>
-                        ) : (
-                            <div style={{ marginTop: 30, textAlign: 'center', color: '#e74c3c' }}>
-                                <p style={{ fontWeight: 'bold' }}>RESERVADA</p>
-                                <p style={{ fontSize: '0.9rem', opacity: 0.7 }}>Esta mesa ya está ocupada en el sistema para este turno.</p>
-                            </div>
-                        )}
-                    </div>
+                {reservas.length === 0 && !loading && (
+                  <tr><td colSpan="7" className="empty-text">No hay reservas registradas.</td></tr>
                 )}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+
+      {/* --- SECCIÓN 2: NUEVA RESERVA MANUAL --- */}
+      {activeTab === 'nueva' && (
+        <div className="manual-reserva-container fade-in">
+          <div className="manual-layout">
+            
+            {/* Formulario de Búsqueda */}
+            <div className="manual-form-card">
+              <h3>1. Datos de la Cita</h3>
+              <form onSubmit={handleBuscarMesas}>
+                <div className="form-group">
+                  <label>Fecha</label>
+                  <div className="input-icon-wrapper">
+                    <Calendar size={16} className="input-icon"/>
+                    <input 
+                      type="date" name="fecha" 
+                      className="admin-input pl-icon"
+                      value={reservaForm.fecha} onChange={handleManualInput}
+                      min={new Date().toISOString().split('T')[0]}
+                      required 
+                    />
+                  </div>
+                </div>
+
+                <div className="form-group">
+                  <label>Zona</label>
+                  <div className="input-icon-wrapper">
+                    <MapPin size={16} className="input-icon"/>
+                    <select name="zona_id" className="admin-select pl-icon" value={reservaForm.zona_id} onChange={handleManualInput} required>
+                      <option value="">Seleccionar Zona...</option>
+                      {zonas.map(z => <option key={z.id} value={z.id}>{z.nombre}</option>)}
+                    </select>
+                  </div>
+                </div>
+
+                <div className="form-group">
+                  <label>Horario</label>
+                  <div className="input-icon-wrapper">
+                    <Clock size={16} className="input-icon"/>
+                    <select 
+                      name="turno_obj" 
+                      className="admin-select pl-icon" 
+                      onChange={handleManualInput} 
+                      required 
+                      disabled={!reservaForm.fecha}
+                    >
+                      <option value="">Seleccionar Hora...</option>
+                      {turnosDelDia.map(t => (
+                        <option key={t.id} value={JSON.stringify({id: t.id, hora_spot: t.hora_spot})}>
+                          {t.hora_spot.slice(0,5)}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  {reservaForm.fecha && turnosDelDia.length === 0 && <small className="text-error">Sin turnos este día</small>}
+                </div>
+
+                <div className="form-group">
+                  <label>Personas</label>
+                  <div className="input-icon-wrapper">
+                    <Users size={16} className="input-icon"/>
+                    <input 
+                      type="number" name="personas" min="1" max="20"
+                      className="admin-input pl-icon"
+                      placeholder="Cantidad"
+                      value={reservaForm.personas} onChange={handleManualInput}
+                      required 
+                    />
+                  </div>
+                </div>
+
+                <button type="submit" className="btn-search-mesas" disabled={loading}>
+                  {loading ? 'Buscando...' : <><Search size={18} /> Buscar Mesas</>}
+                </button>
+              </form>
             </div>
 
-            {/* MODAL FORMULARIO */}
-            {showManualModal && (
-                <div className="manual-modal-overlay">
-                    <div className="manual-modal-content">
-                        <button className="btn-close-modal" onClick={() => setShowManualModal(false)}><X size={24} /></button>
-
-                        <div className="manual-modal-header">
-                            <h3>Nueva Reserva Manual</h3>
-                            <p style={{ color: '#F1C40F' }}>Mesa {selectedMesa?.numero_mesa} • {fecha} • {hora}</p>
+            {/* Resultados y Formulario Final */}
+            <div className="manual-results-area">
+              
+              {/* PASO 1: GRID DE MESAS */}
+              {manualStep === 1 && (
+                <>
+                  <div className="results-header">
+                    <h3>2. Seleccionar Mesa Disponible</h3>
+                  </div>
+                  {mesasDisponibles.length > 0 ? (
+                    <div className="mesas-grid-selector">
+                      {mesasDisponibles.map(mesa => (
+                        <div key={mesa.id} className="mesa-select-card" onClick={() => handleSelectMesa(mesa.id)}>
+                          <div className="mesa-top">
+                            <span className="mesa-zona">{mesa.zona?.nombre}</span>
+                            <Users size={14}/> {mesa.capacidad}
+                          </div>
+                          <span className="mesa-num-big">{mesa.numero_mesa}</span>
+                          <CheckCircle size={20} className="check-icon"/>
                         </div>
-
-                        <form onSubmit={handleSubmitManual}>
-                            <div className="form-row">
-                                <label>Nombre del Cliente</label>
-                                <input className="manual-input" placeholder="Ej: Juan Pérez" autoFocus
-                                    value={manualForm.nombre} onChange={e => setManualForm({ ...manualForm, nombre: e.target.value })}
-                                />
-                            </div>
-                            <div className="form-row">
-                                <label>DNI / Identificación</label>
-                                <input className="manual-input" placeholder="Documento"
-                                    value={manualForm.dni} onChange={e => setManualForm({ ...manualForm, dni: e.target.value })}
-                                />
-                            </div>
-                            <div className="form-row" style={{ display: 'flex', gap: 15 }}>
-                                <div style={{ flex: 1 }}>
-                                    <label>Personas</label>
-                                    <input type="number" className="manual-input" min="1" max={selectedMesa?.capacidad + 2}
-                                        value={manualForm.personas} onChange={e => setManualForm({ ...manualForm, personas: e.target.value })}
-                                    />
-                                </div>
-                                <div style={{ flex: 2 }}>
-                                    <label>Correo (Opcional)</label>
-                                    <input type="email" className="manual-input" placeholder="juan@mail.com"
-                                        value={manualForm.correo} onChange={e => setManualForm({ ...manualForm, correo: e.target.value })}
-                                    />
-                                </div>
-                            </div>
-
-                            <button type="submit" className="btn-confirm-manual" disabled={loading}>
-                                {loading ? 'Procesando...' : 'Confirmar Reserva'}
-                            </button>
-                        </form>
+                      ))}
                     </div>
+                  ) : (
+                    <div className="empty-search">
+                      <Search size={40} opacity={0.3}/>
+                      <p>Complete los filtros para ver mesas disponibles.</p>
+                    </div>
+                  )}
+                </>
+              )}
+
+              {/* PASO 2: DATOS CLIENTE */}
+              {manualStep === 2 && (
+                <div className="cliente-form-wrapper">
+                  <div className="step-header">
+                    <h3>3. Confirmar Datos del Cliente</h3>
+                    <button className="btn-back" onClick={() => setManualStep(1)}>← Cambiar Mesa</button>
+                  </div>
+
+                  <div className="reserva-summary-bar">
+                    <div className="summary-item">
+                      <Calendar size={14}/> {new Date(reservaForm.fecha).toLocaleDateString()}
+                    </div>
+                    <div className="summary-item">
+                      <Clock size={14}/> {reservaForm.hora?.slice(0,5)} hs
+                    </div>
+                    <div className="summary-item">
+                      <Users size={14}/> {reservaForm.personas} pers.
+                    </div>
+                    <div className="summary-item highlight">
+                      Mesa Seleccionada
+                    </div>
+                  </div>
+
+                  <form onSubmit={handleConfirmarReserva} className="cliente-grid-form">
+                    <div className="form-group">
+                      <label>Nombre Completo *</label>
+                      <input type="text" name="nombre_cliente" className="admin-input" onChange={handleManualInput} required />
+                    </div>
+                    <div className="form-group">
+                      <label>DNI *</label>
+                      <input type="text" name="dni_cliente" className="admin-input" onChange={handleManualInput} required />
+                    </div>
+                    <div className="form-group">
+                      <label>Correo Electrónico</label>
+                      <input type="email" name="correo_cliente" className="admin-input" onChange={handleManualInput} />
+                    </div>
+                    <div className="form-group">
+                      <label>Teléfono</label>
+                      <input type="tel" name="telefono_cliente" className="admin-input" onChange={handleManualInput} />
+                    </div>
+
+                    <button type="submit" className="btn-confirm-reserva" disabled={loading}>
+                      {loading ? 'Procesando...' : 'CONFIRMAR RESERVA'}
+                    </button>
+                  </form>
                 </div>
-            )}
+              )}
+            </div>
+          </div>
         </div>
-    );
+      )}
+
+      {/* --- SECCIÓN 3: CONFIGURACIÓN DE TURNOS --- */}
+      {activeTab === 'turnos' && (
+        <div className="turnos-section fade-in">
+          <div className="turnos-layout">
+            {/* Formulario Agregar */}
+            <div className="turnos-config-card">
+              <h3>Agregar Horario de Atención</h3>
+              <form onSubmit={handleCreateTurno} className="turno-form">
+                <div className='div-row-class'>
+                    
+                
+                <div className="form-group">
+                  <label>Día</label>
+                  <select 
+                    className="admin-select"
+                    value={turnoForm.dia_semana}
+                    onChange={e => setTurnoForm({...turnoForm, dia_semana: e.target.value})}
+                  >
+                    {DIAS_SEMANA.map(dia => <option key={dia} value={dia}>{dia}</option>)}
+                  </select>
+                </div>
+                <div className="form-group">
+                  <label>Hora (Spot)</label>
+                  <input 
+                    type="time" 
+                    className="admin-input"
+                    value={turnoForm.hora_spot}
+                    onChange={e => setTurnoForm({...turnoForm, hora_spot: e.target.value})}
+                  />
+                </div>
+                </div>
+                <button type="submit" className="btn-add-turno">
+                  <Plus size={18} /> Agregar
+                </button>
+              </form>
+            </div>
+
+            {/* Grilla Visual */}
+            <div className="dias-grid">
+              {turnosPorDia.map(({ dia, spots }) => (
+                <div key={dia} className="dia-card">
+                  <div className="dia-header">
+                    <CalendarDays size={16} /> {dia}
+                  </div>
+                  <div className="spots-list">
+                    {spots.length > 0 ? (
+                      spots.map(turno => (
+                        <div key={turno.id} className="spot-chip">
+                          <Clock size={12} />
+                          <span>{turno.hora_spot.slice(0, 5)}</span>
+                          <button className="btn-delete-spot" onClick={() => handleDeleteTurno(turno.id)}>
+                            <Trash2 size={12} />
+                          </button>
+                        </div>
+                      ))
+                    ) : (
+                      <span className="no-spots">Cerrado</span>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+    </div>
+  );
 };
 
 export default ReservasAdmin;

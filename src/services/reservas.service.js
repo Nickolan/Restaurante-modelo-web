@@ -5,7 +5,7 @@ export const reservasService = {
     getZonas: async () => {
         try {
             const res = await axios.get('/reservas/zona');
-            return res.data; 
+            return res.data;
         } catch (error) {
             console.error("Error al obtener zonas:", error);
             throw error;
@@ -29,11 +29,11 @@ export const reservasService = {
     getMesasDisponibles: async (fecha, hora, zonaId, personas) => {
         try {
             const res = await axios.get('/reservas/disponibilidad/mesas', {
-                params: { 
-                    fecha, 
-                    hora, 
-                    zona_id: zonaId, 
-                    personas 
+                params: {
+                    fecha,
+                    hora,
+                    zona_id: zonaId,
+                    personas
                 }
             });
             return res.data; // Retorna array de objetos Mesa disponibles
@@ -84,7 +84,7 @@ export const reservasService = {
     getZonas: async () => {
         const res = await axios.get('/reservas/zona');
         console.log(res.data);
-        
+
         return res.data;
     },
 
@@ -109,7 +109,7 @@ export const reservasService = {
     createMesa: async (data) => {
         console.log("Mesa: ", data);
         const res = await axios.post('/reservas/mesa', data);
-        
+
         return res.data;
     },
     updateMesa: async (id, data) => {
@@ -118,6 +118,25 @@ export const reservasService = {
     },
     deleteMesa: async (id) => {
         const res = await axios.delete(`/reservas/mesa/${id}`);
+        return res.data;
+    },
+    getTurnos: async () => {
+        const response = await axios.get('/reservas/turno');
+        return response.data;
+    },
+
+    createTurno: async (data) => {
+        // data espera: { dia_semana: string, hora_spot: string (HH:MM) }
+        const response = await axios.post('/reservas/turno', data);
+        return response.data;
+    },
+
+    deleteTurno: async (id) => {
+        const response = await axios.delete(`/reservas/turno/${id}`);
+        return response.data;
+    },
+    getAllReservas: async () => {
+        const res = await axios.get('/reservas/reserva');
         return res.data;
     }
 };

@@ -1,8 +1,12 @@
-import React from 'react';
+import React, { useState } from 'react'; // 1. Importamos useState
 import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { logout } from '../../store/authSlice';
-import { LayoutDashboard, Coffee, Calendar, ShoppingBag, Settings, LogOut, MapPin } from 'lucide-react';
+// 2. Importamos los iconos Menu y X
+import { 
+    LayoutDashboard, Coffee, Calendar, ShoppingBag, 
+    Settings, LogOut, MapPin, Menu, X 
+} from 'lucide-react';
 import './AdminLayout.css';
 import Logo from '../../assets/Logo.png'; 
 
@@ -11,6 +15,9 @@ const AdminLayout = () => {
     const dispatch = useDispatch();
     const navigate = useNavigate();
     const location = useLocation();
+
+    // 3. Estado para controlar la sidebar en móvil
+    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
     const handleLogout = () => {
         dispatch(logout());
@@ -29,11 +36,29 @@ const AdminLayout = () => {
 
     return (
         <div className="admin-container">
+            
+            {/* --- OVERLAY (Fondo oscuro en móvil) --- */}
+            {/* Si está abierto, mostramos este div para cerrar al hacer clic fuera */}
+            {isSidebarOpen && (
+                <div 
+                    className="sidebar-overlay active" 
+                    onClick={() => setIsSidebarOpen(false)}
+                />
+            )}
+
             {/* --- SIDEBAR --- */}
-            <aside className="admin-sidebar">
+            {/* 4. Agregamos la clase dinámica 'open' si el estado es true */}
+            <aside className={`admin-sidebar ${isSidebarOpen ? 'open' : ''}`}>
                 <div className="sidebar-header">
                     <img src={Logo} alt="Admin" className="sidebar-logo" />
-                    <small>Panel de Control</small>
+                    
+                    {/* 5. Botón Cerrar (Solo visible en móvil por CSS) */}
+                    <button 
+                        className="close-sidebar-btn" 
+                        onClick={() => setIsSidebarOpen(false)}
+                    >
+                        <X size={24} />
+                    </button>
                 </div>
 
                 <nav className="sidebar-nav">
@@ -42,6 +67,8 @@ const AdminLayout = () => {
                             key={item.path} 
                             to={item.path} 
                             className={`nav-item ${location.pathname === item.path ? 'active' : ''}`}
+                            // 6. Cerramos el menú al hacer clic en un enlace (UX móvil)
+                            onClick={() => setIsSidebarOpen(false)}
                         >
                             {item.icon}
                             <span>{item.label}</span>
@@ -65,7 +92,15 @@ const AdminLayout = () => {
 
             {/* --- CONTENIDO PRINCIPAL --- */}
             <main className="admin-content">
-                <Outlet /> {/* Aquí se renderizarán las pantallas hijas */}
+                {/* 7. Botón Hamburguesa (Solo visible en móvil por CSS) */}
+                <button 
+                    className="menu-toggle-btn" 
+                    onClick={() => setIsSidebarOpen(true)}
+                >
+                    <Menu size={24} />
+                </button>
+
+                <Outlet /> 
             </main>
         </div>
     );
