@@ -3,17 +3,19 @@ import { useDispatch } from 'react-redux';
 import { addProducto } from '../../store/cartSlice';
 import './ComboCard.css';
 import { ShoppingCart } from 'lucide-react';
+import { loginFailure } from '../../store/authSlice';
 
 const ComboCard = ({ combo }) => {
     const dispatch = useDispatch();
 
+    console.log(combo);
+    
     const handleAdd = () => {
         // Adaptamos la estructura para que el carrito la entienda igual que un producto
         dispatch(addProducto({
             id: combo.id, // ID único para evitar choque con productos normales
             nombre: combo.nombre,
             precio: parseFloat(combo.precio_combo), // Usamos precio_combo del backend
-            imagen: 'combo-default.png', // O combo.imagen si le agregas foto
             esCombo: true,
             descripcion: combo.descripcion
         }));

@@ -90,7 +90,7 @@ const CheckoutScreen = () => {
         }
 
         console.log(items);
-        
+
 
         try {
             // --- PASO A: Crear el Pedido en tu Base de Datos ---
@@ -214,10 +214,13 @@ const CheckoutScreen = () => {
                     <h2 className="summary-title">Resumen del Pedido</h2>
 
                     <div className="summary-items">
-                        {items.map((item) => (
-                            <div key={item.id} className="summary-item">
-                                <img src={item.imagen ? `${item.imagen}` : "https://via.placeholder.com/60"} alt={item.nombre} className="item-image" />
-
+                        {items.map((item) => {
+                            console.log(item);
+                            
+                            return (
+                                <div key={item.id} className="summary-item">
+                                <img src={item.imagen ? `${item.imagen}` : "https://cdn-icons-png.flaticon.com/512/1046/1046751.png"} alt={item.nombre} className="item-image" />
+                                
                                 <div className="item-details">
                                     <span className="item-name">{item.nombre}</span>
                                     <div className="quantity-control">
@@ -229,23 +232,38 @@ const CheckoutScreen = () => {
 
                                 <span className="item-price">${(item.precio * item.cantidad).toFixed(2)}</span>
                             </div>
-                        ))}
+                            )
+                        })}
                         {items.length === 0 && <p style={{ color: '#888' }}>No hay productos en el carrito.</p>}
                     </div>
 
-                    <div className="payment-wrapper">
+                    <div className="summary-footer">
+
+                        {/* 1. Subtotal (Gris Claro) */}
+                        <div className="cost-row">
+                            <span>Subtotal</span>
+                            <span>${totalAmount.toFixed(2)}</span>
+                        </div>
+
+                        {/* 2. Envío (Gris Claro) */}
+                        <div className="cost-row">
+                            <span>Costo de envío</span>
+                            <span>${costoEnvio.toFixed(2)}</span>
+                        </div>
+
+                        {/* 3. Total (Blanco y Grande) */}
+                        <div className="total-row">
+                            <span>Total</span>
+                            <span>${(totalAmount + costoEnvio).toFixed(2)}</span>
+                        </div>
+
+                        {/* 4. Botón de Pago (Blindado) */}
+                        <div className="payment-wrapper">
                             {preferenceId ? (
                                 <div id="wallet_container">
-                                    <Wallet 
-                                        initialization={{ preferenceId: preferenceId }} 
-                                        customization={{ 
-                                            texts: { valueProp: 'smart_option' },
-                                            // Opcional: Visual customization para que combine mejor con tu tema oscuro
-                                            visual: {
-                                                buttonBackground: 'default', // o 'black'
-                                                borderRadius: '10px',
-                                            }
-                                        }} 
+                                    <Wallet
+                                        initialization={{ preferenceId: preferenceId }}
+                                        customization={{ texts: { valueProp: 'smart_option' } }}
                                     />
                                 </div>
                             ) : (
@@ -254,6 +272,7 @@ const CheckoutScreen = () => {
                                 </button>
                             )}
                         </div>
+                    </div>
                 </div>
             </div>
         </div>

@@ -318,6 +318,44 @@
   transform: translateY(-2px);
 }
 
+.summary-footer {
+  border-top: 1px solid rgba(255, 255, 255, 0.15); /* Línea divisoria sutil */
+  padding-top: 20px;
+  margin-top: auto; /* Empuja el footer hacia abajo si hay espacio */
+  display: flex;
+  flex-direction: column;
+}
+
+.cost-row {
+  display: flex;
+  justify-content: space-between;
+  color: #d1d5db; /* GRIS CLARO (Light Gray) para subtotal y envío */
+  margin-bottom: 10px;
+  font-size: 1rem;
+  font-weight: 500;
+}
+
+.total-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: #ffffff; /* BLANCO para el Total */
+  font-size: 1.6rem;
+  font-weight: 800; /* Extra bold para destacar */
+  margin-top: 10px;
+  margin-bottom: 25px; /* Espacio antes del botón de pago */
+  padding-top: 10px;
+}
+
+/* El wrapper del botón que hicimos antes se mantiene igual */
+.payment-wrapper {
+  width: 100%;
+  min-height: 65px; 
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 /* Responsive */
 @media (max-width: 850px) {
   .checkout-card {
