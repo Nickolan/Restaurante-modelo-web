@@ -248,8 +248,9 @@ h3 {
 }
 
 .form-group select,
-.form-group input {
-  width: 100%;
+.form-group input,
+.form-group textarea {
+  width: 95%;
   padding: 12px;
   border-radius: 8px;
   border: 1px solid rgba(255, 255, 255, 0.2);

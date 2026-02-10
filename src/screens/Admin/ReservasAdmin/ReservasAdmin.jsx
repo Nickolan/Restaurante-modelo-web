@@ -422,10 +422,6 @@ const ReservasAdmin = () => {
                       <label>Correo Electrónico</label>
                       <input type="email" name="correo_cliente" className="admin-input" onChange={handleManualInput} />
                     </div>
-                    <div className="form-group">
-                      <label>Teléfono</label>
-                      <input type="tel" name="telefono_cliente" className="admin-input" onChange={handleManualInput} />
-                    </div>
 
                     <button type="submit" className="btn-confirm-reserva" disabled={loading}>
                       {loading ? 'Procesando...' : 'CONFIRMAR RESERVA'}
