@@ -293,15 +293,6 @@ const MenuAdmin = () => {
                                     placeholder="Ej: Bebidas"
                                 />
                             </div>
-                            <div className="form-group">
-                                <label>Descripción</label>
-                                <textarea 
-                                    className="admin-input" 
-                                    rows="3"
-                                    value={catForm.descripcion}
-                                    onChange={e => setCatForm({...catForm, descripcion: e.target.value})}
-                                />
-                            </div>
                             <div className="form-actions" style={{display:'flex', gap:10, marginTop:20}}>
                                 {editingCategory && (
                                     <button type="button" className="btn-cancel" onClick={handleCancelEditCat} style={{flex:1}}>
