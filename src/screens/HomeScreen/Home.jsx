@@ -155,11 +155,13 @@ const Home = ({onOpenReserva}) => {
 
         {/* Zona Inferior: Imagen Panorámica */}
         <div id='ubicacion' className="contact-map-image-container">
+          <a href="https://maps.google.com/?q=-32.889670, -68.844496" target="_blank" rel="noopener noreferrer">
           <img
             src={UbicacionImage}
             alt="Ubicación y fachada"
             className="contact-full-image"
           />
+          </a>
         </div>
       </section>
     </div>
